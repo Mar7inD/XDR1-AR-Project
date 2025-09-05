@@ -10,3 +10,4 @@ This is the first out of 2 XR projects for my XDR1 course. Together with this pr
 - [Week 9 (Lab 4)](blogposts/week7_lab4.md)
 - [Week 10 (Lab 5)](blogposts/week8_lab5.md)
 - [Week 11 (Lab 6)](blogposts/week9_lab6.md)
+- [Reflections](blogposts/reflections.md)
