@@ -30,11 +30,11 @@ Examples:
 
 - XR technologies can significantly reduce training costs for companies by providing realistic training environments through VR headsets, eliminating the need for expensive physical setups.
 
-- Housework can become more engaging with a VR headset. Example could be vacuuming turning into coin collecting game. With a little AI enhancement, tasks like sorting laundry could become easier, helping you avoid mistakes such as mixing colors and ending up with pink shirts.
+- Housework can become more engaging with a VR headset. Example could be vacuuming turning into coin collecting game. VR could be enhance with AI in tasks like sorting laundry, so you could more easily avoid mixing colors and ending up with pink shirts.
 
 ## XR vs Traditional Applications
 
-Traditional desktop and mobile applications rely on 2d screens. Interactions are more limited by screen, keyboards and touch. While effective for many tasks, these interfaces restrict the sense of depth, scale, and presence.
+Traditional desktop and mobile applications rely on 2D screens. Interactions are more limited by screen, keyboards and touch. Many tasks today rely on this type of interactions, but the sense of depth, scale, and presence is mostly missing.
 
 XR technologies, in contrast, immerse users into 3D worlds where interactions feel real. For example, instead of clicking a button on a screen, a user can grab, move, or walk around a virtual object. This enables for types of engaging traditional computers can hardly offer.
 
@@ -52,18 +52,40 @@ XR technologies, in contrast, immerse users into 3D worlds where interactions fe
 
 - Higher hardware costs and limited accessibility
 
-- Comfort issues such as motion sickness or fatigue
+- Motion sickness or fatigue present serious confort issues
 
 - Performance and technical limitations (field of view, battery life, processing power)
 
 - Steeper learning curve for both users and developers
 
 ## XR Use Cases and Problem-Solving
+XR is applied across many fields:
 
+- Education and training (simulating risky or costly scenarios) 
+
+- Healthcare (surgical planning, therapy)
+
+- Industry (maintenance guidance, prototyping)
+
+- Entertainment (games, immersive media)
+
+ XR enables remote collaboration, not only individual, by letting teams work together in virtual spaces as if they were together. XR’s problem-solving strength lies in making the invisible visible. Being able to turn abstract or hidden processes into tangible experiences.
 
 ## User Experience and Value
+For end users, XR adds value by improving learning, engagement, and decision-making. Interactions feel more natural than traditional applications. Immersive experiences create stronger emotional connections and higher information retention. However, user comfort and accessibility must be carefully designed to avoid fatigue or alienation.
 
 ## Current vs. Future XR Technology
+Today’s XR hardware offers meaningful immersion but faces trade-offs: 
+
+- Bulky headsets 
+
+- Limited fields of view 
+
+- Short battery life 
+
+- Software platforms are fragmented, and content creation remains complex. 
+
+The future vision is lightweight, stylish devices with seamless integration of real and virtual worlds, broader accessibility, and better connectivity. The ideal XR environment is one where digital content is as natural and reliable to interact with as the physical world.
 
 ## Resources
 - [The importance of introducing XR technologies in Universities and Vocational Training Centers](https://alliance4xr.eu/2024/07/03/the-importance-of-introducing-xr-technologies-in-universities-and-professional-training-centers/#:~:text=XR%20technologies%20can%20contribute%20significantly,in%20an%20increasingly%20digital%20world.)
