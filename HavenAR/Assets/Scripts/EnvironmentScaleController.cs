@@ -86,7 +86,7 @@ public class EnvironmentScaleController : MonoBehaviour
     {
         if (scaleValueText != null && scaleSlider != null)
         {
-            scaleValueText.text = $"Scale: {scaleSlider.value:F1}";
+            scaleValueText.text = $"Scale: {scaleSlider.value:F3}";
         }
     }
 

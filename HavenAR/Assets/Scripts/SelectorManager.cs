@@ -17,6 +17,11 @@ public class SelectorManager : MonoBehaviour
     [Header("Scale Controller")]
     [SerializeField] private EnvironmentScaleController scaleController;
 
+    [Header("Environment Button")]
+    [SerializeField] private GameObject environmentButton;
+    [SerializeField] private PanelToggle panelToggle;
+
+
     private GameObject prefabToSpawn;
     private GameObject previewInstance;
     private GameObject currentEnvironment; // Track the spawned environment
@@ -120,12 +125,12 @@ public class SelectorManager : MonoBehaviour
         {
             Pose pose = hits[0].pose;
             GameObject spawnedObject = Instantiate(prefabToSpawn, pose.position, pose.rotation);
-            
+
             // Store reference to the spawned environment
             if (!allowMultipleEnvironments)
             {
                 currentEnvironment = spawnedObject;
-                
+
                 // Add a component to handle destruction events
                 var envTracker = spawnedObject.AddComponent<EnvironmentTracker>();
                 envTracker.Initialize(this);
@@ -140,6 +145,9 @@ public class SelectorManager : MonoBehaviour
                 {
                     Debug.LogWarning("Scale controller is null! Make sure it's assigned in the inspector.");
                 }
+
+                DisableEnvironmentButton();
+                CloseEnvironmentPanel();
             }
             
             Debug.Log($"Spawned {prefabToSpawn.name} at {pose.position}");
@@ -149,7 +157,24 @@ public class SelectorManager : MonoBehaviour
         prefabToSpawn = null;
     }
 
-    // Add this method to get current environment for the scale controller
+        private void DisableEnvironmentButton()
+    {
+        environmentButton.SetActive(false);
+        
+        Debug.Log("Environment button disabled");
+    }
+
+    private void CloseEnvironmentPanel()
+    {
+        if (panelToggle != null)
+        {
+            panelToggle.TogglePanel();
+        }
+        
+        Debug.Log("Environment panel closed");
+    }
+
+    // Method to get current environment for the scale controller
     public GameObject GetCurrentEnvironment()
     {
         return currentEnvironment;
@@ -161,39 +186,6 @@ public class SelectorManager : MonoBehaviour
         foreach (Transform child in obj.transform)
         {
             SetLayerRecursively(child.gameObject, layer);
-        }
-    }
-
-    private void EnsureCollider(GameObject obj)
-    {
-        // Check if the main object or any child has a collider
-        Collider[] colliders = obj.GetComponentsInChildren<Collider>();
-        
-        if (colliders.Length == 0)
-        {
-            // Add a box collider to the main object
-            BoxCollider boxCollider = obj.AddComponent<BoxCollider>();
-            
-            // Try to calculate bounds from renderers
-            Renderer[] renderers = obj.GetComponentsInChildren<Renderer>();
-            if (renderers.Length > 0)
-            {
-                Bounds bounds = renderers[0].bounds;
-                for (int i = 1; i < renderers.Length; i++)
-                {
-                    bounds.Encapsulate(renderers[i].bounds);
-                }
-                
-                // Set collider size and center relative to the object
-                boxCollider.center = obj.transform.InverseTransformPoint(bounds.center);
-                boxCollider.size = new Vector3(
-                    bounds.size.x / obj.transform.lossyScale.x,
-                    bounds.size.y / obj.transform.lossyScale.y,
-                    bounds.size.z / obj.transform.lossyScale.z
-                );
-            }
-            
-            Debug.Log($"Added BoxCollider to {obj.name}");
         }
     }
 
@@ -210,8 +202,19 @@ public class SelectorManager : MonoBehaviour
             
             Destroy(currentEnvironment);
             currentEnvironment = null;
+            
+            // Re-enable environment button when environment is removed
+            EnableEnvironmentButton();
+            
             Debug.Log("Environment removed");
         }
+    }
+
+    private void EnableEnvironmentButton()
+    {
+        environmentButton.SetActive(true);
+        
+        Debug.Log("Environment button enabled");
     }
 
     // Check if there's an active environment
@@ -350,7 +353,6 @@ public class SelectorManager : MonoBehaviour
         prefabToSpawn = null;
     }
 
-    // Optional: Check if currently dragging
     public bool IsDragging => previewInstance != null;
 }
 

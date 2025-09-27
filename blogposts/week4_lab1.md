@@ -12,7 +12,7 @@ HavenAR is a place were you can immerse into an environment using only your phon
 
 ### Ideation
 
-The final concept emerged after a long process of ideation. It all began with the idea of using AR to project an object. My first thought was to create a sorting app where AR could help users place trash into the correct bins. However, I realized that similar solutions already exist in Denmark, with packaging labels that clearly indicate the appropriate recycling bin.
+The final concept emerged after a long process of ideation. It all began with the idea of using AR to project an object. My first thought was to create a sorting app where AR could help users place trash into the correct bins. However, I realized that simpler non-XR solution already exist in Denmark, with packaging labels that clearly indicate the appropriate recycling bin.
 
 From there, I considered developing an AR project using 3D models to enhance understanding, but I found that many such implementations already existed online, and even our teacher showed us student examples. Because of this, I set aside my ideas related to biology and the solar system.
 
@@ -36,3 +36,4 @@ You are a student who is infront of the examination room waiting for his turn. Y
 - [Campfire](https://assetstore.unity.com/packages/3d/environments/campfires-torches-models-and-fx-242552)
 - [Water](https://assetstore.unity.com/packages/3d/environments/waterworks-simple-water-ocean-river-system-for-urp-reflection-re-206909) 
 - [Forest](https://assetstore.unity.com/packages/3d/vegetation/environment-pack-free-forest-sample-168396)
+- [Pictures](https://www.flaticon.com/)

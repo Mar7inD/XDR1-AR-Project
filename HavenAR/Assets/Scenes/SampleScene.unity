@@ -189,7 +189,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ba0a2f622606fdc4898c3fbe522f1268, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefab: {fileID: 3723368915350051141, guid: 8816a36a14e4a0541b1766d143b93e6e, type: 3}
+  prefab: {fileID: 4638728780886901060, guid: f304b4d11d8220b4099052c5cbf91be3, type: 3}
 --- !u!224 &489727154 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 6122368179979543897, guid: 96d9ce9e147426c4fadd40882a39c67f, type: 3}
@@ -1687,6 +1687,10 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: -432.5
       objectReference: {fileID: 0}
+    - target: {fileID: 4658131132369570470, guid: 716d1dae7f2ca06428cfe7d2232baea3, type: 3}
+      propertyPath: prefabToSpawn
+      value: 
+      objectReference: {fileID: 4638728780886901060, guid: f304b4d11d8220b4099052c5cbf91be3, type: 3}
     - target: {fileID: 4695254115768786773, guid: 716d1dae7f2ca06428cfe7d2232baea3, type: 3}
       propertyPath: m_Pivot.x
       value: 0.5
