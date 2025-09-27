@@ -1,166 +1,195 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.InputSystem;
+using UnityEngine.UI;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using UnityEngine.InputSystem;
 
-public class TouchController : MonoBehaviour
+public class ObjectPlacementManager : MonoBehaviour
 {
-    [Header("AR Components")]
-    public ARRaycastManager raycastManager;
-    public Camera arCamera;
-    
-    [Header("Spawn Settings")]
-    public GameObject objectToSpawn;
-    
-    private List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
-    private bool spawned = false;
+    public GameObject objectPrefab;
+    private List<GameObject> spawnedObjects = new List<GameObject>();
+    private GameObject selectedObject; // Currently selected object
 
-    // Start is called before the first frame update
+    public Button placeButton;
+    public Button removeButton;
+    public Button deleteSelectedButton; // New button to delete selected object
+
+    private ARRaycastManager raycastManager;
+    private Camera arCamera;
+
+    private bool spawningEnabled = false;
+    
+    // Store original materials for restoration
+    private Dictionary<GameObject, Material> originalMaterials = new Dictionary<GameObject, Material>();
+
     void Start()
     {
-        // Auto-find AR components if not assigned
-        if (raycastManager == null)
-            raycastManager = FindObjectOfType<ARRaycastManager>();
+        raycastManager = FindFirstObjectByType<ARRaycastManager>();
+        arCamera = Camera.main;
+
+        placeButton.onClick.AddListener(() => EnableSpawning());
+        removeButton.onClick.AddListener(RemoveAllObjects);
+        deleteSelectedButton.onClick.AddListener(DeleteSelectedObject);
         
-        if (arCamera == null)
-            arCamera = Camera.main;
+        removeButton.interactable = false;
+        deleteSelectedButton.interactable = false;
     }
 
-    // Update is called once per frame
+    void EnableSpawning()
+    {
+        spawningEnabled = !spawningEnabled;
+        Debug.Log("Spawning Enabled: " + spawningEnabled);
+    }
+
     void Update()
     {
-        // Handle touch input using new Input System
+        // Check for touch input
         if (Touchscreen.current != null && Touchscreen.current.primaryTouch.press.wasPressedThisFrame)
         {
             Vector2 touchPosition = Touchscreen.current.primaryTouch.position.ReadValue();
-            Debug.Log("Touch detected at: " + touchPosition);
-            
-            // Perform AR raycast
-            PerformARRaycast(touchPosition);
+            HandleTouch(touchPosition);
         }
-        
-        // Handle mouse input for testing in Unity editor using new Input System
+
+        // For testing in editor with mouse
+        #if UNITY_EDITOR
         if (Mouse.current != null && Mouse.current.leftButton.wasPressedThisFrame)
         {
-            Vector2 mousePos = Mouse.current.position.ReadValue();
-            Debug.Log("Mouse click detected at: " + mousePos);
-            
-            // Perform AR raycast (or regular raycast if not in AR)
-            PerformARRaycast(mousePos);
+            Vector2 mousePosition = Mouse.current.position.ReadValue();
+            HandleTouch(mousePosition);
         }
+        #endif
     }
-    
-    private void PerformARRaycast(Vector2 screenPosition)
+
+    void HandleTouch(Vector2 screenPosition)
     {
-        // Check if we have the necessary AR components
-        if (raycastManager == null)
-        {
-            Debug.LogWarning("ARRaycastManager not found! Performing regular raycast instead.");
-            PerformRegularRaycast(screenPosition);
-            return;
-        }
-        
-        // Perform AR raycast to detect planes
-        if (raycastManager.Raycast(screenPosition, raycastHits, TrackableType.PlaneWithinPolygon))
-        {
-            // Get the first hit point
-            ARRaycastHit hit = raycastHits[0];
-            
-            Debug.Log("AR Plane hit at position: " + hit.pose.position);
-            
-            // Spawn object at hit position
-            SpawnObject(hit.pose.position, hit.pose.rotation);
-        }
-        else
-        {
-            Debug.Log("No AR plane detected at touch position");
-        }
-    }
-    
-    private void PerformRegularRaycast(Vector2 screenPosition)
-    {
-        // Create a ray from camera through screen position
+        // First try to select an existing object
         Ray ray = arCamera.ScreenPointToRay(screenPosition);
+        RaycastHit hit;
         
-        // Perform raycast
-        if (Physics.Raycast(ray, out RaycastHit hit))
+        if (Physics.Raycast(ray, out hit))
         {
-            Debug.Log("Regular raycast hit: " + hit.collider.name + " at position: " + hit.point);
+            GameObject hitObject = hit.collider.gameObject;
             
-            // Check if hit object has a specific tag or component (e.g., "Plane")
-            if (hit.collider.CompareTag("Plane") || hit.collider.name.ToLower().Contains("plane"))
+            // Check if we hit one of our spawned objects
+            if (spawnedObjects.Contains(hitObject))
             {
-                SpawnObject(hit.point, Quaternion.LookRotation(hit.normal));
+                SelectObject(hitObject);
+                return;
             }
         }
-        else
+        
+        // If no object was hit and spawning is enabled, try to place new object
+        if (spawningEnabled)
         {
-            Debug.Log("No object hit by raycast");
+            PlaceObject(screenPosition);
         }
     }
 
-    private void SpawnObject(Vector3 position, Quaternion rotation)
+    void SelectObject(GameObject obj)
     {
-        if (!spawned)
+        // Deselect previous object
+        if (selectedObject != null)
         {
-            spawned = true; // Add this line to prevent multiple spawns
+            RestoreOriginalMaterial(selectedObject);
+        }
+        
+        // Select new object
+        selectedObject = obj;
+        
+        // Add glow effect to selected object
+        AddGlowEffect(selectedObject);
+        
+        // Enable delete selected button
+        deleteSelectedButton.interactable = true;
+        
+        Debug.Log("Selected object: " + selectedObject.name);
+    }
+
+    void AddGlowEffect(GameObject obj)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null)
+        {
+            // Store original material if not already stored
+            if (!originalMaterials.ContainsKey(obj))
+            {
+                originalMaterials[obj] = renderer.material;
+            }
             
-            if (objectToSpawn != null)
-            {
-                // Offset the position slightly above the plane to ensure visibility
-                Vector3 spawnPosition = position + Vector3.up * 0.01f;
-
-                GameObject spawnedObject = Instantiate(objectToSpawn, spawnPosition, rotation);
-
-                // Add some debug info
-                Debug.Log("Object spawned at: " + spawnPosition);
-                Debug.Log("Object scale after setting: " + spawnedObject.transform.localScale);
-                Debug.Log("Object name: " + spawnedObject.name);
-
-                // Check if the object has renderers
-                Renderer[] renderers = spawnedObject.GetComponentsInChildren<Renderer>();
-                Debug.Log("Number of renderers found: " + renderers.Length);
-
-                if (renderers.Length == 0)
-                {
-                    Debug.LogWarning("No renderers found on spawned object! Object might not be visible.");
-                }
-                else
-                {
-                    // Log renderer info
-                    foreach (Renderer renderer in renderers)
-                    {
-                        Debug.Log("Renderer: " + renderer.name + ", Enabled: " + renderer.enabled);
-                        if (renderer.material != null)
-                        {
-                            Debug.Log("Material: " + renderer.material.name);
-                        }
-                    }
-                }
-            }
-            else
-            {
-                Debug.LogWarning("No object to spawn assigned! Please assign an object in the inspector.");
-
-                // Create a simple cube as fallback
-                GameObject cube = GameObject.CreatePrimitive(PrimitiveType.Cube);
-                cube.transform.position = position + Vector3.up * 0.05f;
-                cube.transform.rotation = rotation;
-                cube.transform.localScale = Vector3.one * 0.1f; // Small cube
-                cube.name = "SpawnedCube";
-
-                // Make it bright red for visibility
-                Renderer cubeRenderer = cube.GetComponent<Renderer>();
-                cubeRenderer.material.color = Color.red;
-
-                Debug.Log("Created fallback cube at: " + position);
-            }
+            // Create glow material
+            Material glowMaterial = new Material(Shader.Find("Standard"));
+            glowMaterial.color = Color.yellow;
+            
+            // Enable emission for glow effect
+            glowMaterial.EnableKeyword("_EMISSION");
+            glowMaterial.SetColor("_EmissionColor", Color.yellow * 0.8f); // Bright yellow emission
+            
+            // Apply glow material
+            renderer.material = glowMaterial;
         }
-        else
+    }
+
+    void RestoreOriginalMaterial(GameObject obj)
+    {
+        Renderer renderer = obj.GetComponent<Renderer>();
+        if (renderer != null && originalMaterials.ContainsKey(obj))
         {
-            Debug.Log("Object has already been spawned. Only one instance allowed.");
+            renderer.material = originalMaterials[obj];
         }
+    }
+
+    void PlaceObject(Vector2 screenPosition)
+    {
+        var hits = new List<ARRaycastHit>();
+        if (raycastManager.Raycast(screenPosition, hits, TrackableType.PlaneWithinPolygon))
+        {
+            var hitPose = hits[0].pose;
+            GameObject newObject = Instantiate(objectPrefab, hitPose.position, hitPose.rotation);
+            
+            // Add collider if it doesn't exist (needed for selection)
+            if (newObject.GetComponent<Collider>() == null)
+            {
+                newObject.AddComponent<BoxCollider>();
+            }
+            
+            spawnedObjects.Add(newObject);
+            removeButton.interactable = true;
+        }
+    }
+
+    void DeleteSelectedObject()
+    {
+        if (selectedObject != null)
+        {
+            spawnedObjects.Remove(selectedObject);
+            originalMaterials.Remove(selectedObject); // Clean up material reference
+            Destroy(selectedObject);
+            selectedObject = null;
+            
+            deleteSelectedButton.interactable = false;
+            
+            if (spawnedObjects.Count == 0)
+            {
+                removeButton.interactable = false;
+            }
+        }
+    }
+
+    void RemoveAllObjects()
+    {
+        foreach (GameObject obj in spawnedObjects)
+        {
+            if (obj != null)
+            {
+                Destroy(obj);
+            }
+        }
+        spawnedObjects.Clear();
+        originalMaterials.Clear(); // Clean up all material references
+        selectedObject = null;
+        
+        removeButton.interactable = false;
+        deleteSelectedButton.interactable = false;
     }
 }
