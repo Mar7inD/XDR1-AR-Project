@@ -32,16 +32,8 @@ So far, I’ve made progress on the UI and the first core features. The environm
 
 However, the effort paid off. The drag-and-drop interaction feels intuitive and gives a stronger sense of control compared to a simple select-and-click approach. It creates a smoother, more natural workflow for the user, as placing and resizing environments now feels like a hands-on interaction rather than a detached menu action.
 
-## Use Cases
-**Stressed worker:**
-
-**Stressed student waiting for examination:**
-
-You are a student who is infront of the examination room waiting for his turn. You are seeing all other students stressed about the exam reading through everything again and again. You have read everything and you know that you are prepared but still concerned that the examinor could ask something unexpected. You panic. Then in the panic you start scrolling through your phone. You see HeavenAR. You remembered that fellow student showed you this some months ago. You put your headphones on and start the app. You immerse into the small ocean that you put on the floor. You hear the waves splashing. You feel relaxed. Suddenly your name is said. You turn around and see the examinor asking for you with a smile. You enter the room and answer calmly the questions they ask you. They give you 12 because you were feeling calm and confident in what you know. 
-
 ## Assets:
-- [Campfire](https://assetstore.unity.com/packages/3d/environments/campfires-torches-models-and-fx-242552)
-- [Water](https://assetstore.unity.com/packages/3d/environments/waterworks-simple-water-ocean-river-system-for-urp-reflection-re-206909) 
+- [Campfire](https://assetstore.unity.com/packages/3d/props/the-free-medieval-and-war-props-174433)
 - [Water](https://assetstore.unity.com/packages/vfx/shaders/urp-stylized-water-shader-proto-series-187485)
 - [Forest](https://assetstore.unity.com/packages/3d/vegetation/environment-pack-free-forest-sample-168396)
 - [Pictures](https://www.flaticon.com/)
