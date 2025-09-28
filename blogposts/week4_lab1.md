@@ -20,10 +20,17 @@ Still, while brainstorming around the solar system, I imagined portals to differ
 
 That shift in perspective inspired my final idea: creating an AR experience that helps people immerse themselves in their favorite peaceful environment. A beach where you can hear waves splashing, a forest filled with birds and deer, or a campfire crackling in the night. A place to focus, recharge, and reduce stress.
 
+### Assets
 
-### Unity choice
+Since the sea and forest models needed to fit onto different tables and floors, one of the main challenges was finding assets that could be scaled appropriately. In the process, I explored many models and gained insight into different rendering approaches—especially how water effects can vary depending on the implementation and use case.
 
-Although Unity 6 offers many benefits—such as improved performance with the GPU Resident Drawer, advanced rendering capabilities through RenderGraph for URP, Adaptive Probe Volumes for faster and higher-quality lighting, and enhanced AI and multiplayer tools—it was initially our preferred choice for the project. However, after testing our free assets, we found that support was limited. Numerous warnings appeared, and several shaders were incompatible with URP 17. Switching to Unity 2022.3 provided much better compatibility with these assets and significantly reduced the time required to fix issues, making development smoother and more efficient. While Unity 6 introduces exciting new technologies that could enhance future projects, for our current school project, Unity 2022.3 struck the best balance between stability and asset support.
+The first asset I tried for the water effect was [Water Works by GapperGames Studios](https://assetstore.unity.com/packages/3d/environments/waterworks-simple-water-ocean-river-system-for-urp-reflection-re-206909). It looked promising with its wave animations and initially matched the project’s vision. However, when scaled down, the effects disappeared because the system relies on a simple plane, and reducing the scale caused the visual details to vanish. To address this, I switched to [URP Stylized Water Shader by BitGem](https://assetstore.unity.com/packages/vfx/shaders/urp-stylized-water-shader-proto-series-187485) which proved to be much more robust and maintained its quality even at smaller scales.
+
+### UI
+
+So far, I’ve made progress on the UI and the first core features. The environment pane can now be opened, environments can be dragged into place, and their size can be adjusted through scaling. Getting this to work required some setup with controllers and managers, which took time to configure properly.
+
+However, the effort paid off. The drag-and-drop interaction feels intuitive and gives a stronger sense of control compared to a simple select-and-click approach. It creates a smoother, more natural workflow for the user, as placing and resizing environments now feels like a hands-on interaction rather than a detached menu action.
 
 ## Use Cases
 **Stressed worker:**
@@ -35,5 +42,6 @@ You are a student who is infront of the examination room waiting for his turn. Y
 ## Assets:
 - [Campfire](https://assetstore.unity.com/packages/3d/environments/campfires-torches-models-and-fx-242552)
 - [Water](https://assetstore.unity.com/packages/3d/environments/waterworks-simple-water-ocean-river-system-for-urp-reflection-re-206909) 
+- [Water](https://assetstore.unity.com/packages/vfx/shaders/urp-stylized-water-shader-proto-series-187485)
 - [Forest](https://assetstore.unity.com/packages/3d/vegetation/environment-pack-free-forest-sample-168396)
 - [Pictures](https://www.flaticon.com/)

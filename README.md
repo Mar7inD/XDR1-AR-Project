@@ -20,3 +20,14 @@ The blogpost are separated in 4 sections. The first section is about the 1st int
 
 ### Reflections
 - [Reflections](blogposts/reflections.md)
+
+### Video
+- [Video]()
+
+### Use Case
+
+HeavenAR can be used in moments of everyday stress—like waiting outside an exam room, before a presentation, or while commuting. Whenever tension builds up, the app offers a quick way to pause, immerse yourself in a calming environment, and regain focus.
+
+### Tools Used
+- [Unity 2022.3](https://unity.com/)
+  - AR Foundation, ARKit XR Plugin, XR Management
