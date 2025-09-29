@@ -36,4 +36,6 @@ However, the effort paid off. The drag-and-drop interaction feels intuitive and 
 - [Campfire](https://assetstore.unity.com/packages/3d/props/the-free-medieval-and-war-props-174433)
 - [Water](https://assetstore.unity.com/packages/vfx/shaders/urp-stylized-water-shader-proto-series-187485)
 - [Forest](https://assetstore.unity.com/packages/3d/vegetation/environment-pack-free-forest-sample-168396)
+- [Fire](https://assetstore.unity.com/packages/vfx/particles/fire-explosions/free-fire-vfx-urp-266226)
+- [Dog](https://assetstore.unity.com/packages/3d/characters/animals/mammals/3d-stylized-animated-dogs-kit-284699)
 - [Pictures](https://www.flaticon.com/)

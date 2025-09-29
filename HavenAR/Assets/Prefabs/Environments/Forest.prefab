@@ -9,9 +9,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 722792543749883230}
+  - component: {fileID: -6332139706498014933}
   m_Layer: 0
   m_Name: Forest
-  m_TagString: Untagged
+  m_TagString: Environment
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -37,6 +38,11 @@ Transform:
   - {fileID: 6046266289262202640}
   - {fileID: 4013515816397051801}
   - {fileID: 3843666938107204074}
+  - {fileID: 8968804475738019531}
+  - {fileID: 3893229217647652195}
+  - {fileID: 8922284467099460479}
+  - {fileID: 7273508070886876465}
+  - {fileID: 7253697473209020163}
   - {fileID: 429877751307411050}
   - {fileID: 7066586150250375834}
   - {fileID: 1135521565318230915}
@@ -51,10 +57,7 @@ Transform:
   - {fileID: 7151982051532884003}
   - {fileID: 4267976545693051146}
   - {fileID: 4784468261821189783}
-  - {fileID: 8968804475738019531}
-  - {fileID: 3893229217647652195}
   - {fileID: 1897558043171184189}
-  - {fileID: 8922284467099460479}
   - {fileID: 9087657424350244822}
   - {fileID: 1098297403479167847}
   - {fileID: 5177139682759178730}
@@ -116,8 +119,6 @@ Transform:
   - {fileID: 989639615176075590}
   - {fileID: 607844040869882643}
   - {fileID: 35767742528140102}
-  - {fileID: 7273508070886876465}
-  - {fileID: 7253697473209020163}
   - {fileID: 5255377623304053865}
   - {fileID: 3917042338428182664}
   - {fileID: 2358108781376983908}
@@ -160,6 +161,21 @@ Transform:
   - {fileID: 294495899831900341}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &-6332139706498014933
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 613112490663731778}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8f993251e7dd5f41b5a85652bda0f89, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefabName: Forest
+  isScalable: 1
+  isEnvironmentPrefab: 1
 --- !u!1001 &17531917045545194
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1426,6 +1442,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_03
       objectReference: {fileID: 0}
+    - target: {fileID: 8957304962413023527, guid: 3f9b178ccd3b86f4ebbfc1f5a2815e56, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2604,6 +2624,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_02 (4)
       objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
       value: 7
@@ -2681,6 +2705,10 @@ PrefabInstance:
     - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_Name
       value: Ground_02 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
       objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
@@ -2904,6 +2932,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_02
       objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
       value: 26
@@ -3047,6 +3079,10 @@ PrefabInstance:
     - target: {fileID: 1686021177304871604, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
       propertyPath: m_Name
       value: Ground_01 (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686021177304871604, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
+      propertyPath: m_TagString
+      value: Land
       objectReference: {fileID: 0}
     - target: {fileID: 1686021177305034388, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
       propertyPath: m_RootOrder
@@ -4256,6 +4292,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_03 (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8957304962413023527, guid: 3f9b178ccd3b86f4ebbfc1f5a2815e56, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -4277,6 +4317,10 @@ PrefabInstance:
     - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_Name
       value: Ground_02 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
       objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
@@ -6612,6 +6656,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_03 (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 8957304962413023527, guid: 3f9b178ccd3b86f4ebbfc1f5a2815e56, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -6921,6 +6969,10 @@ PrefabInstance:
     - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_Name
       value: Ground_02 (3)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
       objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
@@ -8168,6 +8220,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_01
       objectReference: {fileID: 0}
+    - target: {fileID: 1686021177304871604, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     - target: {fileID: 1686021177305034388, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
       propertyPath: m_RootOrder
       value: 25
@@ -8698,6 +8754,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Ground_02 (5)
       objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
+      objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
       value: 91
@@ -8775,6 +8835,10 @@ PrefabInstance:
     - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_Name
       value: Ground_02 (6)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1279437348525479949, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
+      propertyPath: m_TagString
+      value: Land
       objectReference: {fileID: 0}
     - target: {fileID: 1279437348525638701, guid: e2e682b966e3f644392ffbfab511e0e2, type: 3}
       propertyPath: m_RootOrder
@@ -9441,6 +9505,10 @@ PrefabInstance:
     - target: {fileID: 1686021177304871604, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
       propertyPath: m_Name
       value: Ground_01 (1)
+      objectReference: {fileID: 0}
+    - target: {fileID: 1686021177304871604, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
+      propertyPath: m_TagString
+      value: Land
       objectReference: {fileID: 0}
     - target: {fileID: 1686021177305034388, guid: ebee340de387f334f9ac44e044abd8fb, type: 3}
       propertyPath: m_RootOrder
