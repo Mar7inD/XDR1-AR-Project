@@ -3431,7 +3431,7 @@ MeshCollider:
     m_Bits: 0
   m_ExcludeLayers:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 16
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
@@ -5069,6 +5069,7 @@ GameObject:
   - component: {fileID: 6191479115475244193}
   - component: {fileID: 5475111282331158713}
   - component: {fileID: 7787346818160372968}
+  - component: {fileID: -2578017504626283931}
   m_Layer: 0
   m_Name: germanshepherd
   m_TagString: Object
@@ -5086,7 +5087,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.1, y: 0.1, z: 0.1}
+  m_LocalScale: {x: 0.53200006, y: 0.53200006, z: 0.53200006}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4821951688631796899}
@@ -5129,6 +5130,22 @@ MonoBehaviour:
   prefabName: Dog
   isScalable: 1
   isEnvironmentPrefab: 0
+--- !u!114 &-2578017504626283931
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6544990386230654568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 82c7103182e5ee04fbb8358e481e0ac8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  land: {fileID: 0}
+  landLayer:
+    serializedVersion: 2
+    m_Bits: 256
 --- !u!1 &6564017302769477680
 GameObject:
   m_ObjectHideFlags: 0

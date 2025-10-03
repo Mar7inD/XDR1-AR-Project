@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
 using UnityEngine.InputSystem;
+using UnityEngine.XR.Interaction.Toolkit.Samples.ARStarterAssets;
 
 public class ARPlacementManager : MonoBehaviour
 {
@@ -25,7 +26,19 @@ public class ARPlacementManager : MonoBehaviour
     [Header("Environment Spawn Tags")]
     [SerializeField] private string[] environmentSpawnTags = { "Land" };
 
+    [Header("AR Plane Management")]
+    public ARPlaneManager planeManager;
+
+    [Header("Object Manipulation")]
+    public ObjectManipulator objectManipulator;
+
+    [Header("UI References")]
+    public GameObject environmentButton;
+    public GameObject objectsButton;
+
     // Current state
+    private PanelToggle environmentPanelToggle;
+    private PanelToggle objectsPanelToggle;
     private GameObject currentPrefab;
     private GameObject previewInstance;
     private GameObject currentEnvironment;
@@ -58,6 +71,17 @@ public class ARPlacementManager : MonoBehaviour
         if (arCamera == null)
             arCamera = Camera.main;
 
+        // Initialize panel toggle
+        if (environmentButton != null)
+            environmentPanelToggle = environmentButton.GetComponent<PanelToggle>();
+
+        if (objectsButton != null)
+            objectsPanelToggle = objectsButton.GetComponent<PanelToggle>();
+
+        // Get object manipulator if not assigned
+        if (objectManipulator == null)
+            objectManipulator = FindFirstObjectByType<ObjectManipulator>();
+
         // Get input devices
         touchscreen = Touchscreen.current;
         mouse = Mouse.current;
@@ -75,6 +99,12 @@ public class ARPlacementManager : MonoBehaviour
     #region Input Handling
     void HandleInput()
     {
+        // Only handle placement input if not manipulating objects and not dragging from UI
+        if (objectManipulator != null && objectManipulator.HasSelectedObject())
+        {
+            return; // Let ObjectManipulator handle input
+        }
+
         // Handle touch input on mobile
         if (touchscreen != null && touchscreen.touches.Count > 0)
         {
@@ -161,7 +191,7 @@ public class ARPlacementManager : MonoBehaviour
         if (previewInstance != null && previewInstance.activeInHierarchy)
         {
             PlaceObject(screenPos);
-            
+
         }
         else
         {
@@ -206,7 +236,7 @@ public class ARPlacementManager : MonoBehaviour
         if (raycastManager.Raycast(screenPos, raycastHits, trackableType))
         {
             Pose pose = raycastHits[0].pose;
-            
+
             // Adjust position to be on top of land colliders if not an environment object
             if (!IsEnvironmentPrefab(currentPrefab))
             {
@@ -244,7 +274,7 @@ public class ARPlacementManager : MonoBehaviour
         }
 
         Vector3 finalPosition = previewInstance.transform.position;
-        
+
         // For non-environment objects, ensure they're placed on top of land
         if (!IsEnvironmentPrefab(currentPrefab))
         {
@@ -268,16 +298,28 @@ public class ARPlacementManager : MonoBehaviour
 
         SetPreviewMode(placedObject, false);
 
+        // Ensure the placed object has a PrefabIdentifier
+        EnsurePrefabIdentifier(placedObject);
+
         // Track the object
         if (IsEnvironmentPrefab(currentPrefab))
         {
             if (currentEnvironment != null)
                 Destroy(currentEnvironment);
             currentEnvironment = placedObject;
+
+            // Hide AR planes when environment is placed
+            HideARPlanes();
+
+            // Hide environment UI when environment is placed
+            HidePanel(environmentButton);
         }
         else
         {
+            // Add to spawned objects list for ObjectManipulator access (no parenting)
             spawnedObjects.Add(placedObject);
+            Debug.Log($"Placed {placedObject.name} as independent object");
+            HidePanel(objectsButton);
         }
 
         CleanupPlacement();
@@ -286,6 +328,12 @@ public class ARPlacementManager : MonoBehaviour
     public void CancelPlacement()
     {
         CleanupPlacement();
+
+        // Also deselect any selected object
+        if (objectManipulator != null)
+        {
+            objectManipulator.DeselectCurrentObject();
+        }
     }
 
     void CleanupPlacement()
@@ -385,9 +433,9 @@ public class ARPlacementManager : MonoBehaviour
         // Shoot a ray downward from the object's position to check for land
         Vector3 rayOrigin = new Vector3(basePosition.x, basePosition.y + 5f, basePosition.z);
         Ray ray = new Ray(rayOrigin, Vector3.down);
-        
+
         RaycastHit[] hits = Physics.RaycastAll(ray, 10f);
-        
+
         foreach (RaycastHit hit in hits)
         {
             foreach (string tag in environmentSpawnTags)
@@ -399,9 +447,33 @@ public class ARPlacementManager : MonoBehaviour
                 }
             }
         }
-        
-        // No land found, return null to indicate invalid position
+
+        // Return null to indicate invalid position
         return null;
+    }
+
+    void EnsurePrefabIdentifier(GameObject obj)
+    {
+        PrefabIdentifier identifier = obj.GetComponent<PrefabIdentifier>();
+        if (identifier == null)
+        {
+            // Add PrefabIdentifier if it doesn't exist
+            identifier = obj.AddComponent<PrefabIdentifier>();
+            identifier.prefabName = currentPrefab.name;
+            identifier.isEnvironmentPrefab = IsEnvironmentPrefab(currentPrefab);
+            identifier.isScalable = !identifier.isEnvironmentPrefab; // Environments typically shouldn't be scaled
+
+            Debug.Log($"Added PrefabIdentifier to {obj.name}: isEnvironment={identifier.isEnvironmentPrefab}, isScalable={identifier.isScalable}");
+        }
+        else
+        {
+            // Update existing identifier
+            if (string.IsNullOrEmpty(identifier.prefabName))
+            {
+                identifier.prefabName = currentPrefab.name;
+            }
+            identifier.isEnvironmentPrefab = IsEnvironmentPrefab(currentPrefab);
+        }
     }
 
     void CleanupPreview()
@@ -430,21 +502,21 @@ public class ARPlacementManager : MonoBehaviour
     public GameObject GetCurrentEnvironment() => currentEnvironment;
     public bool IsPlacing => previewInstance != null || isDragging;
     #endregion
-    
+
     #region Delete Functionality
     public void DeleteAllObjects()
     {
         // Remove all spawned objects
         foreach (GameObject obj in spawnedObjects)
         {
-            if (obj != null) 
+            if (obj != null)
             {
                 Debug.Log($"Deleting object: {obj.name}");
                 Destroy(obj);
             }
         }
         spawnedObjects.Clear();
-        
+
         Debug.Log($"Deleted {spawnedObjects.Count} objects");
     }
 
@@ -453,8 +525,57 @@ public class ARPlacementManager : MonoBehaviour
         if (currentEnvironment != null)
         {
             Debug.Log($"Deleting environment: {currentEnvironment.name}");
+
             Destroy(currentEnvironment);
             currentEnvironment = null;
+
+            // Show AR planes again when environment is deleted
+            ShowARPlanes();
+
+            // Show environment UI again when environment is deleted
+            ShowPanel(environmentButton);
+        }
+    }
+
+    private void HideARPlanes()
+    {
+        if (planeManager != null)
+        {
+            foreach (var plane in planeManager.trackables)
+            {
+                if (plane.TryGetComponent<ARFeatheredPlaneMeshVisualizerCompanion>(out var visualizer))
+                {
+                    visualizer.visualizeSurfaces = false;
+                }
+                else
+                {
+                    // Fallback for standard plane visualization
+                    var meshRenderer = plane.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                        meshRenderer.enabled = false;
+                }
+            }
+        }
+    }
+
+    private void ShowARPlanes()
+    {
+        if (planeManager != null)
+        {
+            foreach (var plane in planeManager.trackables)
+            {
+                if (plane.TryGetComponent<ARFeatheredPlaneMeshVisualizerCompanion>(out var visualizer))
+                {
+                    visualizer.visualizeSurfaces = true;
+                }
+                else
+                {
+                    // Fallback for standard plane visualization
+                    var meshRenderer = plane.GetComponent<MeshRenderer>();
+                    if (meshRenderer != null)
+                        meshRenderer.enabled = true;
+                }
+            }
         }
     }
 
@@ -462,14 +583,57 @@ public class ARPlacementManager : MonoBehaviour
     {
         DeleteAllObjects();
         DeleteEnvironment();
-        
+
         // Also cancel any current placement
         if (IsPlacing)
         {
             CancelPlacement();
         }
-        
+
         Debug.Log("Deleted everything in the scene");
+    }
+
+    #region UI Management
+    private void HidePanel(GameObject button)
+    {
+        if (button != null)
+        {
+            if (IsEnvironmentPrefab(button))
+            {
+                button.SetActive(false);
+                environmentPanelToggle.HidePanel();
+                Debug.Log("Hidden environment button");
+            }
+            else
+            {
+                objectsPanelToggle.HidePanel();
+                Debug.Log("Hidden objects button");
+            }
+        }
+    }
+
+    private void ShowPanel(GameObject button)
+    {
+        if (IsEnvironmentPrefab(button))
+        {
+            environmentButton.SetActive(true);
+            Debug.Log("Shown environment button");
+        }
+    }
+    #endregion
+    #endregion
+
+    #region Utility
+    public List<GameObject> GetSpawnedObjects()
+    {
+        // Clean up null references
+        spawnedObjects.RemoveAll(obj => obj == null);
+        return spawnedObjects;
+    }
+
+    public void RemoveSpawnedObject(GameObject obj)
+    {
+        spawnedObjects.Remove(obj);
     }
     #endregion
 }
