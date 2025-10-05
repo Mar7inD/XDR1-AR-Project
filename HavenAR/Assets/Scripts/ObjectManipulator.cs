@@ -421,7 +421,6 @@ public class ObjectManipulator : MonoBehaviour
         }
     }
 
-    // Remove the old two-finger gesture methods and update the pinch gesture
     void HandlePinchGesture(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
     {
         if (selectedObject == null) return;
@@ -474,7 +473,6 @@ public class ObjectManipulator : MonoBehaviour
         }
     }
 
-    // Update the existing HandleTouchBegan method to only handle selection and drag initiation
     private void HandleTouchBegan(Vector2 screenPos)
     {
         if (arCamera == null) return;
