@@ -200,17 +200,27 @@ public class ObjectManipulator : MonoBehaviour
             }
             else if (activeTouchCount == 2 && selectedObject != null)
             {
-                // Two touches - scaling and rotation (only if object is selected)
+                // Two touches - scaling only
                 var activeTouches = GetActiveTouches(touches);
                 if (activeTouches.Count >= 2)
                 {
-                    HandleTwoFingerGestures(activeTouches[0], activeTouches[1]);
+                    HandlePinchGesture(activeTouches[0], activeTouches[1]);
                 }
             }
-            else if (activeTouchCount > 2)
+            else if (activeTouchCount == 3 && selectedObject != null)
             {
-                // More than 2 touches - end any current interactions
-                EndAllInteractions();
+                // Three touches - rotation only
+                var activeTouches = GetActiveTouches(touches, 3);
+                if (activeTouches.Count >= 3)
+                {
+                    HandleThreeFingerRotation(activeTouches[0], activeTouches[1], activeTouches[2]);
+                }
+            }
+            else if (activeTouchCount >= 4)
+            {
+                // Four or more touches - deselect object
+                DeselectObject();
+                Debug.Log("🖐️ Four fingers detected - deselected object");
             }
         }
         // Handle mouse input in editor
@@ -256,10 +266,10 @@ public class ObjectManipulator : MonoBehaviour
         return null;
     }
 
-    private List<UnityEngine.InputSystem.Controls.TouchControl> GetActiveTouches(UnityEngine.InputSystem.Utilities.ReadOnlyArray<UnityEngine.InputSystem.Controls.TouchControl> touches)
+    private List<UnityEngine.InputSystem.Controls.TouchControl> GetActiveTouches(UnityEngine.InputSystem.Utilities.ReadOnlyArray<UnityEngine.InputSystem.Controls.TouchControl> touches, int maxTouches = 2)
     {
         List<UnityEngine.InputSystem.Controls.TouchControl> activeTouches = new List<UnityEngine.InputSystem.Controls.TouchControl>();
-        for (int i = 0; i < touches.Count && activeTouches.Count < 2; i++)
+        for (int i = 0; i < touches.Count && activeTouches.Count < maxTouches; i++)
         {
             if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
             {
@@ -296,127 +306,115 @@ public class ObjectManipulator : MonoBehaviour
         }
     }
 
-    private void HandleTwoFingerGestures(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
+    private void HandleThreeFingerRotation(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2, UnityEngine.InputSystem.Controls.TouchControl touch3)
+    {
+        if (selectedObject == null) return;
+
+        var phase1 = touch1.phase.ReadValue();
+        var phase2 = touch2.phase.ReadValue();
+        var phase3 = touch3.phase.ReadValue();
+
+        // Only rotate when fingers are moving
+        if (phase1 == UnityEngine.InputSystem.TouchPhase.Moved || 
+            phase2 == UnityEngine.InputSystem.TouchPhase.Moved || 
+            phase3 == UnityEngine.InputSystem.TouchPhase.Moved)
+        {
+            Vector2 pos1 = touch1.position.ReadValue();
+            Vector2 pos2 = touch2.position.ReadValue();
+            Vector2 pos3 = touch3.position.ReadValue();
+
+            Vector2 delta1 = touch1.delta.ReadValue();
+            Vector2 delta2 = touch2.delta.ReadValue();
+            Vector2 delta3 = touch3.delta.ReadValue();
+
+            // Calculate the centroid (center point) of the three touches
+            Vector2 centroid = (pos1 + pos2 + pos3) / 3f;
+
+            // Calculate rotation based on how the touches move relative to the centroid
+            float rotation = 0f;
+            int validTouches = 0;
+
+            // For each touch, calculate its contribution to rotation
+            if (delta1.magnitude > 0.1f)
+            {
+                Vector2 relativePos = pos1 - centroid;
+                Vector2 perpendicular = new Vector2(-relativePos.y, relativePos.x).normalized;
+                rotation += Vector2.Dot(delta1, perpendicular);
+                validTouches++;
+            }
+
+            if (delta2.magnitude > 0.1f)
+            {
+                Vector2 relativePos = pos2 - centroid;
+                Vector2 perpendicular = new Vector2(-relativePos.y, relativePos.x).normalized;
+                rotation += Vector2.Dot(delta2, perpendicular);
+                validTouches++;
+            }
+
+            if (delta3.magnitude > 0.1f)
+            {
+                Vector2 relativePos = pos3 - centroid;
+                Vector2 perpendicular = new Vector2(-relativePos.y, relativePos.x).normalized;
+                rotation += Vector2.Dot(delta3, perpendicular);
+                validTouches++;
+            }
+
+            // Average the rotation and apply it
+            if (validTouches > 0)
+            {
+                float averageRotation = rotation / validTouches;
+                float rotationSensitivity = 1.0f; // Adjust this value to control rotation speed
+                selectedObject.transform.Rotate(0, averageRotation * rotationSensitivity, 0);
+                
+                Debug.Log($"🔄 Rotating with 3 fingers: {averageRotation * rotationSensitivity}");
+            }
+        }
+    }
+
+    // Remove the old two-finger gesture methods and update the pinch gesture
+    void HandlePinchGesture(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
     {
         if (selectedObject == null) return;
 
         Vector2 pos1 = touch1.position.ReadValue();
         Vector2 pos2 = touch2.position.ReadValue();
-        
+        float currentDistance = Vector2.Distance(pos1, pos2);
+
         var phase1 = touch1.phase.ReadValue();
         var phase2 = touch2.phase.ReadValue();
 
-        // Initialize gesture detection when touches begin
-        if (currentGestureMode == TwoFingerGestureMode.None)
+        // Initialize pinch
+        if (!isPinching)
         {
             if (phase1 == UnityEngine.InputSystem.TouchPhase.Began || phase2 == UnityEngine.InputSystem.TouchPhase.Began)
             {
-                InitializeTwoFingerGesture(pos1, pos2);
-            }
-            else if (phase1 == UnityEngine.InputSystem.TouchPhase.Moved || phase2 == UnityEngine.InputSystem.TouchPhase.Moved)
-            {
-                DetectGestureType(pos1, pos2);
+                isPinching = true;
+                lastPinchDistance = currentDistance;
+                Debug.Log("🤏 Started scaling with 2 fingers");
+                return;
             }
         }
 
-        // Execute the appropriate gesture based on detected mode
-        if (currentGestureMode == TwoFingerGestureMode.Scaling)
+        // Handle pinch scaling
+        if (isPinching && (phase1 == UnityEngine.InputSystem.TouchPhase.Moved || phase2 == UnityEngine.InputSystem.TouchPhase.Moved))
         {
-            HandlePinchGesture(touch1, touch2);
-        }
-        else if (currentGestureMode == TwoFingerGestureMode.Rotating)
-        {
-            HandleTwoFingerRotation(touch1, touch2);
+            float deltaDistance = currentDistance - lastPinchDistance;
+            float scaleDelta = deltaDistance * pinchSensitivity * Time.deltaTime * 10f;
+            ScaleSelectedObject(scaleDelta);
+            lastPinchDistance = currentDistance;
+            
+            Debug.Log($"🤏 Scaling: {scaleDelta}");
         }
 
-        // End gestures when touches end
-        if (phase1 == UnityEngine.InputSystem.TouchPhase.Ended || 
+        // End pinching when touches end
+        if (phase1 == UnityEngine.InputSystem.TouchPhase.Ended ||
             phase1 == UnityEngine.InputSystem.TouchPhase.Canceled ||
-            phase2 == UnityEngine.InputSystem.TouchPhase.Ended || 
+            phase2 == UnityEngine.InputSystem.TouchPhase.Ended ||
             phase2 == UnityEngine.InputSystem.TouchPhase.Canceled)
         {
-            EndTwoFingerGestures();
+            isPinching = false;
+            Debug.Log("🤏 Ended scaling");
         }
-    }
-
-    private void InitializeTwoFingerGesture(Vector2 pos1, Vector2 pos2)
-    {
-        initialPinchDistance = Vector2.Distance(pos1, pos2);
-        initialRotationAngle = Mathf.Atan2(pos2.y - pos1.y, pos2.x - pos1.x) * Mathf.Rad2Deg;
-        currentGestureMode = TwoFingerGestureMode.None;
-        Debug.Log("Initialized two-finger gesture detection");
-    }
-
-    private void DetectGestureType(Vector2 pos1, Vector2 pos2)
-    {
-        float currentDistance = Vector2.Distance(pos1, pos2);
-        float currentAngle = Mathf.Atan2(pos2.y - pos1.y, pos2.x - pos1.x) * Mathf.Rad2Deg;
-        
-        // Check how much the distance changed (pinch in/out)
-        float distanceChange = Mathf.Abs(currentDistance - initialPinchDistance);
-        
-        // Check how much the angle changed (rotation)
-        float angleChange = Mathf.Abs(Mathf.DeltaAngle(currentAngle, initialRotationAngle));
-        
-        // Determine gesture based on which change is more significant
-        if (distanceChange > gestureThreshold)
-        {
-            currentGestureMode = TwoFingerGestureMode.Scaling;
-            Debug.Log("🤏 Started SCALING gesture - pinch to scale");
-        }
-        else if (angleChange > 15f) // 15 degrees threshold
-        {
-            currentGestureMode = TwoFingerGestureMode.Rotating;
-            Debug.Log("🔄 Started ROTATION gesture - move fingers left/right to rotate");
-        }
-    }
-
-    // Update the EndTwoFingerGestures method
-    private void EndTwoFingerGestures()
-    {
-        isPinching = false;
-        lastPinchDistance = 0f;
-        currentGestureMode = TwoFingerGestureMode.None;
-        initialPinchDistance = 0f;
-        initialRotationAngle = 0f;
-        Debug.Log("Ended two-finger gesture");
-    }
-
-    private void HandleTwoFingerRotation(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
-    {
-        if (selectedObject == null) return;
-
-        var phase1 = touch1.phase.ReadValue();
-        var phase2 = touch2.phase.ReadValue();
-
-        if (phase1 == UnityEngine.InputSystem.TouchPhase.Moved || phase2 == UnityEngine.InputSystem.TouchPhase.Moved)
-        {
-            Vector2 pos1 = touch1.position.ReadValue();
-            Vector2 pos2 = touch2.position.ReadValue();
-            Vector2 delta1 = touch1.delta.ReadValue();
-            Vector2 delta2 = touch2.delta.ReadValue();
-
-            // Calculate rotation based on the perpendicular component of touch movement
-            Vector2 direction = (pos2 - pos1).normalized;
-            Vector2 perpendicular = new Vector2(-direction.y, direction.x);
-
-            // Project deltas onto perpendicular to get rotation component
-            float rotationComponent1 = Vector2.Dot(delta1, perpendicular);
-            float rotationComponent2 = Vector2.Dot(delta2, perpendicular);
-            
-            // Average the rotation components
-            float averageRotation = (rotationComponent1 - rotationComponent2) * 0.5f;
-            
-            // Apply rotation
-            float rotationSpeed = 0.5f; // Adjust this value to control rotation sensitivity
-            selectedObject.transform.Rotate(0, averageRotation * rotationSpeed, 0);
-        }
-    }
-
-    private void EndAllInteractions()
-    {
-        EndDragging();
-        EndTwoFingerGestures();
     }
 
     // Update the existing HandleTouchBegan method to only handle selection and drag initiation
@@ -667,35 +665,6 @@ public class ObjectManipulator : MonoBehaviour
         return obj.GetComponent<Renderer>() != null || obj.GetComponentsInChildren<Renderer>().Length > 0;
     }
 
-    void HandlePinchGesture(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
-    {
-        if (selectedObject == null) return;
-
-        Vector2 pos1 = touch1.position.ReadValue();
-        Vector2 pos2 = touch2.position.ReadValue();
-        float currentDistance = Vector2.Distance(pos1, pos2);
-
-        if (!isPinching)
-        {
-            isPinching = true;
-            lastPinchDistance = currentDistance;
-            return;
-        }
-
-        float deltaDistance = currentDistance - lastPinchDistance;
-        // Use a much more sensitive approach for pinch scaling
-        float scaleDelta = deltaDistance * pinchSensitivity * Time.deltaTime * 10f;
-        ScaleSelectedObject(scaleDelta);
-        lastPinchDistance = currentDistance;
-
-        // End pinching when touches end
-        if (touch1.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Ended ||
-            touch2.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Ended)
-        {
-            isPinching = false;
-        }
-    }
-
     void HandleMouseInput()
     {
         Vector2 mousePos = mouse.position.ReadValue();
@@ -777,11 +746,19 @@ public class ObjectManipulator : MonoBehaviour
     {
         if (selectedObject == null) return;
 
+        Debug.Log($"Deselecting object: {selectedObject.name}");
+        
         RemoveSelectionOutline();
-        selectedObject = null;
+        
+        // End any ongoing interactions
         isDragging = false;
+        isPinching = false;
+        dragOffset = Vector3.zero;
+        lastPinchDistance = 0f;
+        
+        selectedObject = null;
 
-        Debug.Log("Deselected object");
+        Debug.Log("Object deselected successfully");
     }
 
     void AddSelectionOutline()
@@ -795,64 +772,71 @@ public class ObjectManipulator : MonoBehaviour
             return;
         }
 
-        // Store original materials
+        // Store original materials properly
         List<Material> originals = new List<Material>();
-        List<Material> outlines = new List<Material>();
 
         for (int i = 0; i < renderers.Length; i++)
         {
             if (renderers[i] == null) continue;
 
-            // Store original material
-            Material originalMat = renderers[i].material;
+            // Store the ORIGINAL material (not the current one)
+            Material originalMat = renderers[i].sharedMaterial; // Use sharedMaterial instead of material
             originals.Add(originalMat);
 
-            // Create a new material with a simple unlit shader that works on mobile
-            Material outlineMat = new Material(Shader.Find("Unlit/Color"));
-            outlineMat.color = selectedColor;
-            outlines.Add(outlineMat);
-
-            // Try multiple approaches for better visibility
-            
-            // Approach 1: Simple color tint (works with most shaders)
-            if (originalMat.HasProperty("_Color"))
+            // Create a tinted version for selection
+            if (originalMat != null && originalMat.HasProperty("_Color"))
             {
-                Material tintedMat = new Material(originalMat);
+                Material tintedMat = new Material(originalMat); // Create a copy
                 Color originalColor = originalMat.color;
                 Color tintedColor = Color.Lerp(originalColor, selectedColor, 0.5f);
                 tintedMat.color = tintedColor;
-                renderers[i].material = tintedMat;
+                renderers[i].material = tintedMat; // This creates an instance
             }
-            // Approach 2: Use Unlit/Color as fallback
             else
             {
+                // Fallback: create simple colored material
+                Material outlineMat = new Material(Shader.Find("Unlit/Color"));
+                outlineMat.color = selectedColor;
                 renderers[i].material = outlineMat;
             }
         }
 
-        // Convert lists to arrays for storage
+        // Store the original materials
         originalMaterials = originals.ToArray();
-        outlineMaterials = outlines.ToArray();
 
         Debug.Log($"Added selection outline to {selectedObject.name} with {renderers.Length} renderers");
     }
 
     void RemoveSelectionOutline()
     {
-        if (selectedObject == null || originalMaterials == null) return;
+        if (selectedObject == null) return;
 
         Renderer[] renderers = selectedObject.GetComponentsInChildren<Renderer>();
 
-        for (int i = 0; i < renderers.Length && i < originalMaterials.Length; i++)
+        // Restore original materials
+        if (originalMaterials != null)
         {
-            if (renderers[i] != null && originalMaterials[i] != null)
+            for (int i = 0; i < renderers.Length && i < originalMaterials.Length; i++)
             {
-                renderers[i].material = originalMaterials[i];
+                if (renderers[i] != null && originalMaterials[i] != null)
+                {
+                    // Destroy the current material instance to prevent memory leaks
+                    if (renderers[i].material != originalMaterials[i])
+                    {
+                        DestroyImmediate(renderers[i].material);
+                    }
+                    
+                    // Restore the original shared material
+                    renderers[i].sharedMaterial = originalMaterials[i];
+                }
             }
         }
 
+        // Clear the stored materials
         originalMaterials = null;
         outlineMaterials = null;
+
+        Debug.Log($"Removed selection outline from {selectedObject?.name}");
     }
 
     void StartDragging(Vector2 screenPos)
