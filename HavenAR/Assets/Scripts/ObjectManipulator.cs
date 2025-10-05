@@ -13,7 +13,8 @@ public class ObjectManipulator : MonoBehaviour
     [SerializeField] private float rotationSpeed = 90f;
     [SerializeField] private float minScale = 0.001f;
     [SerializeField] private float maxScale = 5f;
-    [SerializeField] private float pinchSensitivity = 0.5f;
+    [SerializeField] private float pinchSensitivity = 0.1f;
+    [SerializeField] private float minimumTouchPressure = 0.3f;
 
     [Header("Visual Feedback")]
     [SerializeField] private Color selectedColor = Color.yellow;
@@ -37,6 +38,11 @@ public class ObjectManipulator : MonoBehaviour
     private float lastPinchDistance;
     private bool isPinching = false;
 
+    // Gesture state tracking
+    private bool wasThreeFingerRotating = false;
+    private float gestureTransitionCooldown = 0f;
+    private const float GESTURE_TRANSITION_DELAY = 0.3f; // 300ms delay
+
     // Drag state
     private bool isDragging = false;
     private Vector3 dragOffset;
@@ -46,18 +52,6 @@ public class ObjectManipulator : MonoBehaviour
     private Quaternion lastEnvironmentRotation;
     private Vector3 lastEnvironmentScale;
     private bool isTrackingEnvironment = false;
-
-    private enum TwoFingerGestureMode
-    {
-        None,
-        Scaling,
-        Rotating
-    }
-
-    private TwoFingerGestureMode currentGestureMode = TwoFingerGestureMode.None;
-    private float initialPinchDistance;
-    private float initialRotationAngle;
-    private float gestureThreshold = 30f; 
 
     void Start()
     {
@@ -81,6 +75,12 @@ public class ObjectManipulator : MonoBehaviour
 
         // Track environment changes
         TrackEnvironmentChanges();
+        
+        // Update gesture cooldowns
+        if (gestureTransitionCooldown > 0f)
+        {
+            gestureTransitionCooldown -= Time.deltaTime;
+        }
     }
 
     void TrackEnvironmentChanges()
@@ -195,16 +195,26 @@ public class ObjectManipulator : MonoBehaviour
                 var primaryTouch = GetPrimaryActiveTouch(touches);
                 if (primaryTouch != null)
                 {
+                    Debug.Log("☝️ Single finger detected");
                     HandleSingleTouchInput(primaryTouch);
                 }
+                // Clear three-finger state when down to one finger
+                wasThreeFingerRotating = false;
             }
             else if (activeTouchCount == 2 && selectedObject != null)
             {
-                // Two touches - scaling only
-                var activeTouches = GetActiveTouches(touches);
-                if (activeTouches.Count >= 2)
+                // Two touches - scaling only (but check for transition delay)
+                if (gestureTransitionCooldown <= 0f && !wasThreeFingerRotating)
                 {
-                    HandlePinchGesture(activeTouches[0], activeTouches[1]);
+                    var activeTouches = GetActiveTouches(touches);
+                    if (activeTouches.Count >= 2)
+                    {
+                        HandlePinchGesture(activeTouches[0], activeTouches[1]);
+                    }
+                }
+                else
+                {
+                    Debug.Log("🔄 Ignoring 2-finger gesture during transition cooldown");
                 }
             }
             else if (activeTouchCount == 3 && selectedObject != null)
@@ -213,6 +223,12 @@ public class ObjectManipulator : MonoBehaviour
                 var activeTouches = GetActiveTouches(touches, 3);
                 if (activeTouches.Count >= 3)
                 {
+                    if (!wasThreeFingerRotating)
+                    {
+                        wasThreeFingerRotating = true;
+                        isPinching = false; // Stop any ongoing pinch
+                        Debug.Log("🔄 Started 3-finger rotation");
+                    }
                     HandleThreeFingerRotation(activeTouches[0], activeTouches[1], activeTouches[2]);
                 }
             }
@@ -221,6 +237,19 @@ public class ObjectManipulator : MonoBehaviour
                 // Four or more touches - deselect object
                 DeselectObject();
                 Debug.Log("🖐️ Four fingers detected - deselected object");
+                wasThreeFingerRotating = false;
+                gestureTransitionCooldown = 0f;
+            }
+            else if (activeTouchCount == 0)
+            {
+                // No touches - check if we were rotating and start cooldown
+                if (wasThreeFingerRotating)
+                {
+                    Debug.Log("🔄 Ended 3-finger rotation - starting transition cooldown");
+                    wasThreeFingerRotating = false;
+                    gestureTransitionCooldown = GESTURE_TRANSITION_DELAY;
+                    isPinching = false; // Ensure pinching is disabled
+                }
             }
         }
         // Handle mouse input in editor
@@ -246,7 +275,14 @@ public class ObjectManipulator : MonoBehaviour
         int count = 0;
         for (int i = 0; i < touches.Count; i++)
         {
-            if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
+            var phase = touches[i].phase.ReadValue();
+            var pressure = touches[i].pressure.ReadValue();
+            
+            // Only count touches that are actively pressed or moving AND have sufficient pressure
+            if ((phase == UnityEngine.InputSystem.TouchPhase.Began || 
+                phase == UnityEngine.InputSystem.TouchPhase.Moved || 
+                phase == UnityEngine.InputSystem.TouchPhase.Stationary) &&
+                pressure > minimumTouchPressure)
             {
                 count++;
             }
@@ -258,7 +294,14 @@ public class ObjectManipulator : MonoBehaviour
     {
         for (int i = 0; i < touches.Count; i++)
         {
-            if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
+            var phase = touches[i].phase.ReadValue();
+            var pressure = touches[i].pressure.ReadValue();
+            
+            // Only return touches that are actively pressed or moving AND have sufficient pressure
+            if ((phase == UnityEngine.InputSystem.TouchPhase.Began || 
+                phase == UnityEngine.InputSystem.TouchPhase.Moved || 
+                phase == UnityEngine.InputSystem.TouchPhase.Stationary) &&
+                pressure > minimumTouchPressure)
             {
                 return touches[i];
             }
@@ -271,7 +314,14 @@ public class ObjectManipulator : MonoBehaviour
         List<UnityEngine.InputSystem.Controls.TouchControl> activeTouches = new List<UnityEngine.InputSystem.Controls.TouchControl>();
         for (int i = 0; i < touches.Count && activeTouches.Count < maxTouches; i++)
         {
-            if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
+            var phase = touches[i].phase.ReadValue();
+            var pressure = touches[i].pressure.ReadValue();
+            
+            // Only add touches that are actively pressed or moving AND have sufficient pressure
+            if ((phase == UnityEngine.InputSystem.TouchPhase.Began || 
+                phase == UnityEngine.InputSystem.TouchPhase.Moved || 
+                phase == UnityEngine.InputSystem.TouchPhase.Stationary) &&
+                pressure > minimumTouchPressure) 
             {
                 activeTouches.Add(touches[i]);
             }
@@ -376,6 +426,13 @@ public class ObjectManipulator : MonoBehaviour
     {
         if (selectedObject == null) return;
 
+        // Additional safety check - don't start pinching if we just finished rotating
+        if (gestureTransitionCooldown > 0f)
+        {
+            Debug.Log("🤏 Pinch blocked - transition cooldown active");
+            return;
+        }
+
         Vector2 pos1 = touch1.position.ReadValue();
         Vector2 pos2 = touch2.position.ReadValue();
         float currentDistance = Vector2.Distance(pos1, pos2);
@@ -446,16 +503,6 @@ public class ObjectManipulator : MonoBehaviour
                     SelectObject(rootObject);
                 }
             }
-            else
-            {
-                // Clicked on non-scalable object, deselect
-                DeselectObject();
-            }
-        }
-        else
-        {
-            // Clicked on empty space, deselect
-            DeselectObject();
         }
     }
 
@@ -554,7 +601,7 @@ public class ObjectManipulator : MonoBehaviour
         }
 
         // Strategy 2: Check for specific tags that indicate prefab roots
-        if (obj.CompareTag("Environment") || obj.CompareTag("Prop") || obj.CompareTag("Building"))
+        if (obj.CompareTag("Environment"))
         {
             return true;
         }
