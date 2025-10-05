@@ -13,7 +13,7 @@ public class ObjectManipulator : MonoBehaviour
     [SerializeField] private float rotationSpeed = 90f;
     [SerializeField] private float minScale = 0.001f;
     [SerializeField] private float maxScale = 5f;
-    [SerializeField] private float pinchSensitivity = 2f;
+    [SerializeField] private float pinchSensitivity = 0.5f;
 
     [Header("Visual Feedback")]
     [SerializeField] private Color selectedColor = Color.yellow;
@@ -46,6 +46,18 @@ public class ObjectManipulator : MonoBehaviour
     private Quaternion lastEnvironmentRotation;
     private Vector3 lastEnvironmentScale;
     private bool isTrackingEnvironment = false;
+
+    private enum TwoFingerGestureMode
+    {
+        None,
+        Scaling,
+        Rotating
+    }
+
+    private TwoFingerGestureMode currentGestureMode = TwoFingerGestureMode.None;
+    private float initialPinchDistance;
+    private float initialRotationAngle;
+    private float gestureThreshold = 30f; 
 
     void Start()
     {
@@ -294,11 +306,28 @@ public class ObjectManipulator : MonoBehaviour
         var phase1 = touch1.phase.ReadValue();
         var phase2 = touch2.phase.ReadValue();
 
-        // Handle pinch for scaling
-        HandlePinchGesture(touch1, touch2);
+        // Initialize gesture detection when touches begin
+        if (currentGestureMode == TwoFingerGestureMode.None)
+        {
+            if (phase1 == UnityEngine.InputSystem.TouchPhase.Began || phase2 == UnityEngine.InputSystem.TouchPhase.Began)
+            {
+                InitializeTwoFingerGesture(pos1, pos2);
+            }
+            else if (phase1 == UnityEngine.InputSystem.TouchPhase.Moved || phase2 == UnityEngine.InputSystem.TouchPhase.Moved)
+            {
+                DetectGestureType(pos1, pos2);
+            }
+        }
 
-        // Handle rotation
-        HandleTwoFingerRotation(touch1, touch2);
+        // Execute the appropriate gesture based on detected mode
+        if (currentGestureMode == TwoFingerGestureMode.Scaling)
+        {
+            HandlePinchGesture(touch1, touch2);
+        }
+        else if (currentGestureMode == TwoFingerGestureMode.Rotating)
+        {
+            HandleTwoFingerRotation(touch1, touch2);
+        }
 
         // End gestures when touches end
         if (phase1 == UnityEngine.InputSystem.TouchPhase.Ended || 
@@ -308,6 +337,49 @@ public class ObjectManipulator : MonoBehaviour
         {
             EndTwoFingerGestures();
         }
+    }
+
+    private void InitializeTwoFingerGesture(Vector2 pos1, Vector2 pos2)
+    {
+        initialPinchDistance = Vector2.Distance(pos1, pos2);
+        initialRotationAngle = Mathf.Atan2(pos2.y - pos1.y, pos2.x - pos1.x) * Mathf.Rad2Deg;
+        currentGestureMode = TwoFingerGestureMode.None;
+        Debug.Log("Initialized two-finger gesture detection");
+    }
+
+    private void DetectGestureType(Vector2 pos1, Vector2 pos2)
+    {
+        float currentDistance = Vector2.Distance(pos1, pos2);
+        float currentAngle = Mathf.Atan2(pos2.y - pos1.y, pos2.x - pos1.x) * Mathf.Rad2Deg;
+        
+        // Check how much the distance changed (pinch in/out)
+        float distanceChange = Mathf.Abs(currentDistance - initialPinchDistance);
+        
+        // Check how much the angle changed (rotation)
+        float angleChange = Mathf.Abs(Mathf.DeltaAngle(currentAngle, initialRotationAngle));
+        
+        // Determine gesture based on which change is more significant
+        if (distanceChange > gestureThreshold)
+        {
+            currentGestureMode = TwoFingerGestureMode.Scaling;
+            Debug.Log("🤏 Started SCALING gesture - pinch to scale");
+        }
+        else if (angleChange > 15f) // 15 degrees threshold
+        {
+            currentGestureMode = TwoFingerGestureMode.Rotating;
+            Debug.Log("🔄 Started ROTATION gesture - move fingers left/right to rotate");
+        }
+    }
+
+    // Update the EndTwoFingerGestures method
+    private void EndTwoFingerGestures()
+    {
+        isPinching = false;
+        lastPinchDistance = 0f;
+        currentGestureMode = TwoFingerGestureMode.None;
+        initialPinchDistance = 0f;
+        initialRotationAngle = 0f;
+        Debug.Log("Ended two-finger gesture");
     }
 
     private void HandleTwoFingerRotation(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
@@ -339,12 +411,6 @@ public class ObjectManipulator : MonoBehaviour
             float rotationSpeed = 0.5f; // Adjust this value to control rotation sensitivity
             selectedObject.transform.Rotate(0, averageRotation * rotationSpeed, 0);
         }
-    }
-
-    private void EndTwoFingerGestures()
-    {
-        isPinching = false;
-        lastPinchDistance = 0f;
     }
 
     private void EndAllInteractions()
@@ -585,9 +651,7 @@ public class ObjectManipulator : MonoBehaviour
         }
 
         // Check for specific scalable tags
-        if (obj.CompareTag("Prop") ||
-            obj.CompareTag("Building") ||
-            obj.CompareTag("Environment") ||  // Add Environment tag
+        if (obj.CompareTag("Environment") ||  // Add Environment tag
             obj.CompareTag("Scalable"))
         {
             return true;
@@ -732,33 +796,43 @@ public class ObjectManipulator : MonoBehaviour
         }
 
         // Store original materials
-        originalMaterials = new Material[renderers.Length];
-        outlineMaterials = new Material[renderers.Length];
+        List<Material> originals = new List<Material>();
+        List<Material> outlines = new List<Material>();
 
         for (int i = 0; i < renderers.Length; i++)
         {
             if (renderers[i] == null) continue;
 
-            originalMaterials[i] = renderers[i].material;
+            // Store original material
+            Material originalMat = renderers[i].material;
+            originals.Add(originalMat);
 
-            // Create outline material
-            Material outlineMat = new Material(originalMaterials[i]);
+            // Create a new material with a simple unlit shader that works on mobile
+            Material outlineMat = new Material(Shader.Find("Unlit/Color"));
+            outlineMat.color = selectedColor;
+            outlines.Add(outlineMat);
 
-            // Try different approaches to make the object more visible
-            if (outlineMat.HasProperty("_Color"))
+            // Try multiple approaches for better visibility
+            
+            // Approach 1: Simple color tint (works with most shaders)
+            if (originalMat.HasProperty("_Color"))
             {
-                outlineMat.SetColor("_Color", Color.Lerp(originalMaterials[i].color, selectedColor, 0.7f));
+                Material tintedMat = new Material(originalMat);
+                Color originalColor = originalMat.color;
+                Color tintedColor = Color.Lerp(originalColor, selectedColor, 0.5f);
+                tintedMat.color = tintedColor;
+                renderers[i].material = tintedMat;
             }
-
-            if (outlineMat.HasProperty("_EmissionColor"))
+            // Approach 2: Use Unlit/Color as fallback
+            else
             {
-                outlineMat.SetColor("_EmissionColor", selectedColor * 0.3f);
-                outlineMat.EnableKeyword("_EMISSION");
+                renderers[i].material = outlineMat;
             }
-
-            outlineMaterials[i] = outlineMat;
-            renderers[i].material = outlineMat;
         }
+
+        // Convert lists to arrays for storage
+        originalMaterials = originals.ToArray();
+        outlineMaterials = outlines.ToArray();
 
         Debug.Log($"Added selection outline to {selectedObject.name} with {renderers.Length} renderers");
     }
