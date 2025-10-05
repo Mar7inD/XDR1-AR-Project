@@ -245,7 +245,7 @@ MonoBehaviour:
   rotationSpeed: 90
   minScale: 0.001
   maxScale: 3
-  pinchSensitivity: 2
+  pinchSensitivity: 0.5
   selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   manipulateObjectsWithEnvironment: 1
 --- !u!224 &489727154 stripped
