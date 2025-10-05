@@ -1,4 +1,19 @@
 {
+    "dotnet.completion.showCompletionItemsFromUnimportedNamespaces": false,
+    "omnisharp.useModernNet": false,
+    "omnisharp.path": "latest",
+    "omnisharp.enableEditorConfigSupport": false,
+    "omnisharp.enableRoslynAnalyzers": false,
+    "omnisharp.enableImportCompletion": false,
+    "omnisharp.projectLoadTimeout": 30,
+    "dotnet.server.useOmnisharp": true,
+    "dotnet.unitTests.runSettingsPath": "",
+    "dotnet.completion.showNameCompletionSuggestions": false,
+    "omnisharp.enableMsBuildLoadProjectsOnDemand": false,
+    "omnisharp.enableAsyncCompletion": false,
+    "omnisharp.disableMSBuildDiagnosticWarning": true,
+    "unity.logLevel": "info",
+    "unity.enableRoslynAnalyzers": false,
     "files.exclude": {
         "**/.DS_Store": true,
         "**/.git": true,
@@ -41,6 +56,8 @@
         "**/*.meta": true,
         "**/*.prefab": true,
         "**/*.unity": true,
+        "**/obj": true,
+        "**/bin": true,
         "build/": true,
         "Build/": true,
         "Library/": true,
@@ -49,7 +66,24 @@
         "Obj/": true,
         "ProjectSettings/": true,
         "temp/": true,
-        "Temp/": true
+        "Temp/": true,
+        "**/Logs": true,
+        "**/.vs": true,
+        "**/.vscode": false
     },
-    "dotnet.defaultSolution": "HavenAR.sln"
+    "search.exclude": {
+        "**/obj": true,
+        "**/bin": true,
+        "**/Library": true,
+        "**/Temp": true,
+        "**/*.meta": true
+    },
+    "files.watcherExclude": {
+        "**/obj/**": true,
+        "**/bin/**": true,
+        "**/Library/**": true,
+        "**/Temp/**": true
+    },
+    "dotnet.defaultSolution": "HavenAR.sln",
+    "dotnet.formatting.organizeImportsOnFormat": false
 }
