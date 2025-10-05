@@ -66,7 +66,6 @@ public class ObjectManipulator : MonoBehaviour
         HandleInput();
         HandleKeyboardRotation();
         HandleMouseScroll();
-        HandleTouchGestures();
 
         // Track environment changes
         TrackEnvironmentChanges();
@@ -176,28 +175,30 @@ public class ObjectManipulator : MonoBehaviour
         if (touchscreen != null)
         {
             var touches = touchscreen.touches;
+            int activeTouchCount = GetActiveTouchCount(touches);
 
-            if (touches.Count == 1)
+            if (activeTouchCount == 1)
             {
-                var touch = touches[0];
-                if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Began)
+                // Single touch - selection and dragging
+                var primaryTouch = GetPrimaryActiveTouch(touches);
+                if (primaryTouch != null)
                 {
-                    Vector2 touchPos = touch.position.ReadValue();
-
-                    // Check if touch is over UI
-                    if (!IsPointerOverUIElement(touchPos))
-                    {
-                        HandleTouchBegan(touchPos);
-                    }
-                }
-                else
-                {
-                    HandleSingleTouch(touch);
+                    HandleSingleTouchInput(primaryTouch);
                 }
             }
-            else if (touches.Count == 2)
+            else if (activeTouchCount == 2 && selectedObject != null)
             {
-                HandlePinchGesture(touches[0], touches[1]);
+                // Two touches - scaling and rotation (only if object is selected)
+                var activeTouches = GetActiveTouches(touches);
+                if (activeTouches.Count >= 2)
+                {
+                    HandleTwoFingerGestures(activeTouches[0], activeTouches[1]);
+                }
+            }
+            else if (activeTouchCount > 2)
+            {
+                // More than 2 touches - end any current interactions
+                EndAllInteractions();
             }
         }
         // Handle mouse input in editor
@@ -206,8 +207,6 @@ public class ObjectManipulator : MonoBehaviour
             if (mouse.leftButton.wasPressedThisFrame)
             {
                 Vector2 mousePos = mouse.position.ReadValue();
-
-                // Check if mouse is over UI
                 if (!IsPointerOverUIElement(mousePos))
                 {
                     HandleMouseBegan(mousePos);
@@ -220,6 +219,141 @@ public class ObjectManipulator : MonoBehaviour
         }
     }
 
+    private int GetActiveTouchCount(UnityEngine.InputSystem.Utilities.ReadOnlyArray<UnityEngine.InputSystem.Controls.TouchControl> touches)
+    {
+        int count = 0;
+        for (int i = 0; i < touches.Count; i++)
+        {
+            if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
+            {
+                count++;
+            }
+        }
+        return count;
+    }
+
+    private UnityEngine.InputSystem.Controls.TouchControl GetPrimaryActiveTouch(UnityEngine.InputSystem.Utilities.ReadOnlyArray<UnityEngine.InputSystem.Controls.TouchControl> touches)
+    {
+        for (int i = 0; i < touches.Count; i++)
+        {
+            if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
+            {
+                return touches[i];
+            }
+        }
+        return null;
+    }
+
+    private List<UnityEngine.InputSystem.Controls.TouchControl> GetActiveTouches(UnityEngine.InputSystem.Utilities.ReadOnlyArray<UnityEngine.InputSystem.Controls.TouchControl> touches)
+    {
+        List<UnityEngine.InputSystem.Controls.TouchControl> activeTouches = new List<UnityEngine.InputSystem.Controls.TouchControl>();
+        for (int i = 0; i < touches.Count && activeTouches.Count < 2; i++)
+        {
+            if (touches[i].phase.ReadValue() != UnityEngine.InputSystem.TouchPhase.None)
+            {
+                activeTouches.Add(touches[i]);
+            }
+        }
+        return activeTouches;
+    }
+
+    private void HandleSingleTouchInput(UnityEngine.InputSystem.Controls.TouchControl touch)
+    {
+        Vector2 touchPos = touch.position.ReadValue();
+        var phase = touch.phase.ReadValue();
+
+        // Check if touch is over UI
+        if (IsPointerOverUIElement(touchPos))
+            return;
+
+        switch (phase)
+        {
+            case UnityEngine.InputSystem.TouchPhase.Began:
+                HandleTouchBegan(touchPos);
+                break;
+
+            case UnityEngine.InputSystem.TouchPhase.Moved:
+                if (isDragging && selectedObject != null)
+                    UpdateDragging(touchPos);
+                break;
+
+            case UnityEngine.InputSystem.TouchPhase.Ended:
+            case UnityEngine.InputSystem.TouchPhase.Canceled:
+                EndDragging();
+                break;
+        }
+    }
+
+    private void HandleTwoFingerGestures(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
+    {
+        if (selectedObject == null) return;
+
+        Vector2 pos1 = touch1.position.ReadValue();
+        Vector2 pos2 = touch2.position.ReadValue();
+        
+        var phase1 = touch1.phase.ReadValue();
+        var phase2 = touch2.phase.ReadValue();
+
+        // Handle pinch for scaling
+        HandlePinchGesture(touch1, touch2);
+
+        // Handle rotation
+        HandleTwoFingerRotation(touch1, touch2);
+
+        // End gestures when touches end
+        if (phase1 == UnityEngine.InputSystem.TouchPhase.Ended || 
+            phase1 == UnityEngine.InputSystem.TouchPhase.Canceled ||
+            phase2 == UnityEngine.InputSystem.TouchPhase.Ended || 
+            phase2 == UnityEngine.InputSystem.TouchPhase.Canceled)
+        {
+            EndTwoFingerGestures();
+        }
+    }
+
+    private void HandleTwoFingerRotation(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
+    {
+        if (selectedObject == null) return;
+
+        var phase1 = touch1.phase.ReadValue();
+        var phase2 = touch2.phase.ReadValue();
+
+        if (phase1 == UnityEngine.InputSystem.TouchPhase.Moved || phase2 == UnityEngine.InputSystem.TouchPhase.Moved)
+        {
+            Vector2 pos1 = touch1.position.ReadValue();
+            Vector2 pos2 = touch2.position.ReadValue();
+            Vector2 delta1 = touch1.delta.ReadValue();
+            Vector2 delta2 = touch2.delta.ReadValue();
+
+            // Calculate rotation based on the perpendicular component of touch movement
+            Vector2 direction = (pos2 - pos1).normalized;
+            Vector2 perpendicular = new Vector2(-direction.y, direction.x);
+
+            // Project deltas onto perpendicular to get rotation component
+            float rotationComponent1 = Vector2.Dot(delta1, perpendicular);
+            float rotationComponent2 = Vector2.Dot(delta2, perpendicular);
+            
+            // Average the rotation components
+            float averageRotation = (rotationComponent1 - rotationComponent2) * 0.5f;
+            
+            // Apply rotation
+            float rotationSpeed = 0.5f; // Adjust this value to control rotation sensitivity
+            selectedObject.transform.Rotate(0, averageRotation * rotationSpeed, 0);
+        }
+    }
+
+    private void EndTwoFingerGestures()
+    {
+        isPinching = false;
+        lastPinchDistance = 0f;
+    }
+
+    private void EndAllInteractions()
+    {
+        EndDragging();
+        EndTwoFingerGestures();
+    }
+
+    // Update the existing HandleTouchBegan method to only handle selection and drag initiation
     private void HandleTouchBegan(Vector2 screenPos)
     {
         if (arCamera == null) return;
@@ -469,25 +603,6 @@ public class ObjectManipulator : MonoBehaviour
         return obj.GetComponent<Renderer>() != null || obj.GetComponentsInChildren<Renderer>().Length > 0;
     }
 
-    void HandleSingleTouch(UnityEngine.InputSystem.Controls.TouchControl touch)
-    {
-        Vector2 touchPos = touch.position.ReadValue();
-        var phase = touch.phase.ReadValue();
-
-        switch (phase)
-        {
-            case UnityEngine.InputSystem.TouchPhase.Moved:
-                if (isDragging && selectedObject != null)
-                    UpdateDragging(touchPos);
-                break;
-
-            case UnityEngine.InputSystem.TouchPhase.Ended:
-            case UnityEngine.InputSystem.TouchPhase.Canceled:
-                EndDragging();
-                break;
-        }
-    }
-
     void HandlePinchGesture(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
     {
         if (selectedObject == null) return;
@@ -563,33 +678,6 @@ public class ObjectManipulator : MonoBehaviour
         if (rotationInput != 0f)
         {
             selectedObject.transform.Rotate(0, rotationInput * rotationSpeed * Time.deltaTime, 0);
-        }
-    }
-
-    void HandleTouchGestures()
-    {
-        // Handle touch rotation with two-finger rotation gesture
-        if (touchscreen != null && touchscreen.touches.Count == 2 && selectedObject != null)
-        {
-            var touch1 = touchscreen.touches[0];
-            var touch2 = touchscreen.touches[1];
-
-            Vector2 pos1 = touch1.position.ReadValue();
-            Vector2 pos2 = touch2.position.ReadValue();
-
-            Vector2 currentDirection = (pos2 - pos1).normalized;
-
-            // Simple rotation based on touch movement
-            if (touch1.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved ||
-                touch2.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved)
-            {
-                Vector2 center = (pos1 + pos2) * 0.5f;
-                Vector2 deltaPos = touch1.delta.ReadValue();
-
-                // Calculate rotation based on touch delta
-                float rotationDelta = Vector2.SignedAngle(Vector2.up, deltaPos) * 0.5f;
-                selectedObject.transform.Rotate(0, rotationDelta * Time.deltaTime, 0);
-            }
         }
     }
 
