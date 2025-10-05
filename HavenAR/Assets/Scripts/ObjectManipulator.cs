@@ -5,6 +5,7 @@ using UnityEngine.XR.ARSubsystems;
 using UnityEngine.EventSystems;
 using System.Collections.Generic;
 using UnityEngine.XR.Interaction.Toolkit.Samples.ARStarterAssets;
+using UnityEngine.XR.Interaction.Toolkit.Inputs.Readers;
 
 public class ObjectManipulator : MonoBehaviour
 {
@@ -21,6 +22,19 @@ public class ObjectManipulator : MonoBehaviour
     [Header("Environment Manipulation")]
     [SerializeField] private bool manipulateObjectsWithEnvironment = true;
 
+    [Header("AR Template Integration")]
+    [SerializeField] private GameObject gestureControllerObject;
+    [Tooltip("Use AR Template gesture system. Disable for legacy touch input.")]
+    [SerializeField] private bool useARTemplateGestures = true;
+    [Tooltip("Enable mouse input for editor testing. Disable to use legacy input system in editor.")]
+    [SerializeField] private bool enableEditorTesting = true;
+
+    [Header("XR Input Readers - AR Template Style")]
+    [SerializeField] private XRInputValueReader<Vector2> m_TapPositionInput = new XRInputValueReader<Vector2>("Tap Position");
+    [SerializeField] private XRInputValueReader<Vector2> m_DragPositionInput = new XRInputValueReader<Vector2>("Drag Position");
+    [SerializeField] private XRInputValueReader<float> m_PinchScaleInput = new XRInputValueReader<float>("Pinch Scale");
+    [SerializeField] private XRInputValueReader<float> m_TwistRotationInput = new XRInputValueReader<float>("Twist Rotation");
+
     private GameObject selectedObject;
     private Material[] originalMaterials;
     private Material[] outlineMaterials;
@@ -28,24 +42,28 @@ public class ObjectManipulator : MonoBehaviour
     private ARRaycastManager raycastManager;
     private List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
 
-    // Input references
+    // Input references (fallback for non-AR template mode)
     private Touchscreen touchscreen;
     private Mouse mouse;
     private Keyboard keyboard;
 
-    // Touch manipulation
-    private float lastPinchDistance;
-    private bool isPinching = false;
-
-    // Drag state
+    // Gesture state
     private bool isDragging = false;
+    private bool isScaling = false;
+    private bool isRotating = false;
     private Vector3 dragOffset;
+    private float initialScale = 1f;
+    private float initialRotation = 0f;
 
     // Environment tracking for object manipulation
     private Vector3 lastEnvironmentPosition;
     private Quaternion lastEnvironmentRotation;
     private Vector3 lastEnvironmentScale;
     private bool isTrackingEnvironment = false;
+
+    // Legacy touch state for fallback mode
+    private float lastPinchDistance;
+    private bool isPinching = false;
 
     void Start()
     {
@@ -55,22 +73,325 @@ public class ObjectManipulator : MonoBehaviour
 
         raycastManager = FindFirstObjectByType<ARRaycastManager>();
 
-        // Get input devices
+        // Initialize AR Template style input readers
+        if (useARTemplateGestures)
+        {
+            InitializeARTemplateGestures();
+            Debug.Log("ObjectManipulator: AR Template gestures initialized");
+        }
+
+        // Get fallback input devices
         touchscreen = Touchscreen.current;
         mouse = Mouse.current;
         keyboard = Keyboard.current;
+        
+        // Debug input device availability
+        if (Application.isEditor)
+        {
+            Debug.Log($"ObjectManipulator Editor Setup - Mouse: {(mouse != null ? "Available" : "Not Available")}, " +
+                     $"AR Template Mode: {useARTemplateGestures}, Editor Testing: {enableEditorTesting}");
+        }
     }
 
     void Update()
     {
-        HandleInput();
-        HandleKeyboardRotation();
-        HandleMouseScroll();
-        HandleTouchGestures();
+        // In editor, provide option to use legacy input system for testing
+        if (Application.isEditor && !enableEditorTesting)
+        {
+            HandleInput();
+            HandleKeyboardRotation();
+            HandleMouseScroll();
+            HandleTouchGestures();
+        }
+        else if (useARTemplateGestures)
+        {
+            HandleARTemplateGestures();
+        }
+        else
+        {
+            HandleInput();
+            HandleKeyboardRotation();
+            HandleMouseScroll();
+            HandleTouchGestures();
+        }
 
         // Track environment changes
         TrackEnvironmentChanges();
     }
+
+    #region AR Template Gesture Integration
+
+    void InitializeARTemplateGestures()
+    {
+        // Enable XR Input Readers
+        m_TapPositionInput?.EnableDirectActionIfModeUsed();
+        m_DragPositionInput?.EnableDirectActionIfModeUsed();
+        m_PinchScaleInput?.EnableDirectActionIfModeUsed();
+        m_TwistRotationInput?.EnableDirectActionIfModeUsed();
+
+        Debug.Log("AR Template gesture integration initialized");
+    }
+
+    void HandleARTemplateGestures()
+    {
+        // In editor, prioritize mouse input for testing
+        if (Application.isEditor && enableEditorTesting)
+        {
+            HandleEditorMouseInput();
+        }
+        else
+        {
+            // Handle tap input for selection on device
+            if (m_TapPositionInput != null && m_TapPositionInput.TryReadValue(out Vector2 tapPosition))
+            {
+                HandleARTemplateTap(tapPosition);
+            }
+        }
+
+        // Process XR Input Reader values for enhanced responsiveness
+        if (selectedObject != null)
+        {
+            // Handle pinch scaling via XR Input Reader
+            if (m_PinchScaleInput != null && m_PinchScaleInput.TryReadValue(out float pinchScale))
+            {
+                if (Mathf.Abs(pinchScale - 1f) > 0.01f) // Only scale if there's meaningful change
+                {
+                    ApplyScaling(pinchScale);
+                }
+            }
+
+            // Handle twist rotation via XR Input Reader
+            if (m_TwistRotationInput != null && m_TwistRotationInput.TryReadValue(out float twistRotation))
+            {
+                if (Mathf.Abs(twistRotation) > 1f) // Only rotate if there's meaningful change
+                {
+                    ApplyRotation(twistRotation);
+                }
+            }
+
+            // Handle drag positioning via XR Input Reader
+            if (m_DragPositionInput != null && m_DragPositionInput.TryReadValue(out Vector2 dragPosition))
+            {
+                HandleARTemplateDrag(dragPosition);
+            }
+        }
+
+        // Always handle keyboard input for rotation and mouse scroll for scaling
+        HandleKeyboardRotation();
+        
+        // Enhanced mouse scroll handling in AR Template mode
+        if (Application.isEditor && selectedObject != null)
+        {
+            HandleMouseScroll();
+        }
+        
+        // Handle fallback touch input for devices that don't support XR Input Readers
+        if (!Application.isEditor)
+        {
+            HandleFallbackTouchInput();
+        }
+    }
+
+    #region AR Template Helper Methods
+
+    void HandleEditorMouseInput()
+    {
+        if (mouse == null) return;
+
+        Vector2 mousePos = mouse.position.ReadValue();
+
+        // Handle mouse clicks for object selection and dragging
+        if (mouse.leftButton.wasPressedThisFrame)
+        {
+            if (!IsPointerOverUIElement(mousePos))
+            {
+                Ray ray = arCamera.ScreenPointToRay(mousePos);
+                if (Physics.Raycast(ray, out RaycastHit hit))
+                {
+                    GameObject hitObject = hit.collider.gameObject;
+                    GameObject rootObject = FindRootPrefabObject(hitObject);
+
+                    if (IsScalableObject(rootObject))
+                    {
+                        if (selectedObject == null)
+                        {
+                            SelectObject(rootObject);
+                            Debug.Log($"Selected object: {rootObject.name} (Editor Mode)");
+                        }
+                        else if (rootObject == selectedObject)
+                        {
+                            StartDragging(mousePos);
+                            Debug.Log($"Started dragging: {rootObject.name} (Editor Mode)");
+                        }
+                        else
+                        {
+                            SelectObject(rootObject);
+                            Debug.Log($"Selected different object: {rootObject.name} (Editor Mode)");
+                        }
+                    }
+                    else
+                    {
+                        DeselectObject();
+                    }
+                }
+                else
+                {
+                    DeselectObject();
+                }
+            }
+        }
+        else if (mouse.leftButton.isPressed && isDragging && selectedObject != null)
+        {
+            UpdateDragging(mousePos);
+        }
+        else if (mouse.leftButton.wasReleasedThisFrame)
+        {
+            if (isDragging)
+            {
+                EndDragging();
+                Debug.Log("Ended dragging (Editor Mode)");
+            }
+        }
+
+        // Right click to deselect
+        if (mouse.rightButton.wasPressedThisFrame)
+        {
+            DeselectObject();
+            Debug.Log("Deselected object (Editor Mode)");
+        }
+    }
+
+    void HandleARTemplateTap(Vector2 screenPosition)
+    {
+        if (IsPointerOverUIElement(screenPosition)) return;
+
+        Ray ray = arCamera.ScreenPointToRay(screenPosition);
+        if (Physics.Raycast(ray, out RaycastHit hit))
+        {
+            GameObject hitObject = hit.collider.gameObject;
+            GameObject rootObject = FindRootPrefabObject(hitObject);
+
+            if (IsScalableObject(rootObject))
+            {
+                if (selectedObject == null)
+                {
+                    SelectObject(rootObject);
+                }
+                else if (rootObject == selectedObject)
+                {
+                    StartDragging(screenPosition);
+                }
+                else
+                {
+                    SelectObject(rootObject);
+                }
+            }
+            else
+            {
+                DeselectObject();
+            }
+        }
+        else
+        {
+            DeselectObject();
+        }
+    }
+
+    void HandleARTemplateDrag(Vector2 screenPosition)
+    {
+        if (selectedObject != null && !IsPointerOverUIElement(screenPosition))
+        {
+            if (!isDragging)
+            {
+                StartDragging(screenPosition);
+            }
+            else
+            {
+                UpdateDragging(screenPosition);
+            }
+        }
+    }
+
+    void HandleFallbackTouchInput()
+    {
+        // Fallback to regular touch input if XR Input Readers aren't working
+        if (touchscreen != null)
+        {
+            var touches = touchscreen.touches;
+            
+            if (touches.Count == 1)
+            {
+                var touch = touches[0];
+                Vector2 touchPos = touch.position.ReadValue();
+                var phase = touch.phase.ReadValue();
+
+                switch (phase)
+                {
+                    case UnityEngine.InputSystem.TouchPhase.Began:
+                        if (!IsPointerOverUIElement(touchPos))
+                        {
+                            HandleTouchBegan(touchPos);
+                        }
+                        break;
+                    case UnityEngine.InputSystem.TouchPhase.Moved:
+                        if (isDragging && selectedObject != null)
+                            UpdateDragging(touchPos);
+                        break;
+                    case UnityEngine.InputSystem.TouchPhase.Ended:
+                    case UnityEngine.InputSystem.TouchPhase.Canceled:
+                        EndDragging();
+                        break;
+                }
+            }
+            else if (touches.Count == 2)
+            {
+                HandlePinchGesture(touches[0], touches[1]);
+            }
+        }
+    }
+
+    void ApplyScaling(float scaleFactor)
+    {
+        if (selectedObject == null) return;
+
+        // Check if scaling is allowed for this object
+        PrefabIdentifier identifier = selectedObject.GetComponent<PrefabIdentifier>();
+        if (identifier != null && !identifier.isScalable)
+        {
+            return;
+        }
+
+        // Apply more refined scaling
+        Vector3 currentScale = selectedObject.transform.localScale;
+        Vector3 newScale = currentScale * scaleFactor;
+        
+        // Clamp scale
+        newScale = Vector3.Max(Vector3.one * minScale, Vector3.Min(Vector3.one * maxScale, newScale));
+        
+        selectedObject.transform.localScale = newScale;
+    }
+
+    void ApplyRotation(float rotationDelta)
+    {
+        if (selectedObject == null) return;
+
+        // Apply rotation with sensitivity
+        float rotationAmount = rotationDelta * rotationSpeed * Time.deltaTime;
+        selectedObject.transform.Rotate(0, rotationAmount, 0, Space.World);
+    }
+
+    #endregion
+
+    void OnDestroy()
+    {
+        // Disable XR Input Readers
+        m_TapPositionInput?.DisableDirectActionIfModeUsed();
+        m_DragPositionInput?.DisableDirectActionIfModeUsed();
+        m_PinchScaleInput?.DisableDirectActionIfModeUsed();
+        m_TwistRotationInput?.DisableDirectActionIfModeUsed();
+    }
+
+    #endregion
 
     void TrackEnvironmentChanges()
     {
