@@ -316,9 +316,19 @@ public class ARPlacementManager : MonoBehaviour
         }
         else
         {
-            // Add to spawned objects list for ObjectManipulator access (no parenting)
+            // Parent object to current environment if one exists
+            if (currentEnvironment != null)
+            {
+                placedObject.transform.SetParent(currentEnvironment.transform);
+                Debug.Log($"Placed {placedObject.name} as child of environment {currentEnvironment.name}");
+            }
+            else
+            {
+                Debug.Log($"Placed {placedObject.name} as independent object (no environment)");
+            }
+            
+            // Add to spawned objects list for ObjectManipulator access
             spawnedObjects.Add(placedObject);
-            Debug.Log($"Placed {placedObject.name} as independent object");
             HidePanel(objectsButton);
         }
 
@@ -525,6 +535,16 @@ public class ARPlacementManager : MonoBehaviour
         if (currentEnvironment != null)
         {
             Debug.Log($"Deleting environment: {currentEnvironment.name}");
+
+            // Remove child objects from spawned objects list before destroying environment
+            Transform[] children = currentEnvironment.GetComponentsInChildren<Transform>();
+            foreach (Transform child in children)
+            {
+                if (child != currentEnvironment.transform) // Don't remove the environment itself
+                {
+                    spawnedObjects.Remove(child.gameObject);
+                }
+            }
 
             Destroy(currentEnvironment);
             currentEnvironment = null;
