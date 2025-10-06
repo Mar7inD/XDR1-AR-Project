@@ -24,7 +24,6 @@ public class ObjectManipulator : MonoBehaviour
 
     private GameObject selectedObject;
     private Material[] originalMaterials;
-    private Material[] outlineMaterials;
     private Camera arCamera;
     private ARRaycastManager raycastManager;
     private List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
@@ -881,7 +880,6 @@ public class ObjectManipulator : MonoBehaviour
 
         // Clear the stored materials
         originalMaterials = null;
-        outlineMaterials = null;
 
         Debug.Log($"Removed selection outline from {selectedObject?.name}");
     }
