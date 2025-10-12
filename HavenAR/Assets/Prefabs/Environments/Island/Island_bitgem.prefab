@@ -222,7 +222,7 @@ MonoBehaviour:
   yHeight: 0
   landLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 1073742119
 --- !u!114 &6085512950160422920
 MonoBehaviour:
   m_ObjectHideFlags: 0

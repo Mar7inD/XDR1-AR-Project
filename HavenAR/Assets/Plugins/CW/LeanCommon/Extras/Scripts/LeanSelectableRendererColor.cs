@@ -62,20 +62,22 @@ namespace Lean.Common
 		public void UpdateColor()
 		{
 			// Don't update colors in edit mode on prefabs
-			if (!Application.isPlaying && UnityEditor.PrefabUtility.IsPartOfPrefabAsset(gameObject))
-				return;
-
-			var color = Selectable != null && Selectable.IsSelected == true ? selectedColor : defaultColor;
-
-			// Update color for this GameObject's renderer
-			UpdateRendererColor(gameObject, color);
-
-			// Loop through all children and update their colors
-			foreach (Transform child in transform)
-			{
-				UpdateRendererColor(child.gameObject, color);
-			}
-		}
+			#if UNITY_EDITOR
+						if (!Application.isPlaying && UnityEditor.PrefabUtility.IsPartOfPrefabAsset(gameObject))
+							return;
+			#endif
+			
+						var color = Selectable != null && Selectable.IsSelected == true ? selectedColor : defaultColor;
+			
+						// Update color for this GameObject's renderer
+						UpdateRendererColor(gameObject, color);
+			
+						// Loop through all children and update their colors
+						foreach (Transform child in transform)
+						{
+							UpdateRendererColor(child.gameObject, color);
+						}
+					}
 
 		private void UpdateRendererColor(GameObject target, Color color)
 		{
