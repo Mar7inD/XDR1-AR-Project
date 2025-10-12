@@ -35,6 +35,8 @@ public class ARPlacementManager : MonoBehaviour
     [Header("UI References")]
     public GameObject environmentButton;
     public GameObject objectsButton;
+    public GameObject startPanel;
+    public GameObject mainUI;
 
     // Current state
     private PanelToggle environmentPanelToggle;
@@ -44,6 +46,9 @@ public class ARPlacementManager : MonoBehaviour
     private GameObject currentEnvironment;
     private List<GameObject> spawnedObjects = new List<GameObject>();
     private List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
+
+    // Game state
+    private bool gameStarted = false;
 
     // Drag and drop state
     private bool isDragging = false;
@@ -86,19 +91,90 @@ public class ARPlacementManager : MonoBehaviour
         touchscreen = Touchscreen.current;
         mouse = Mouse.current;
 
-        // Initially hide objects button until environment is placed
-        if (objectsButton != null)
-            objectsButton.SetActive(false);
+        // Initialize UI state - show start panel, hide everything else
+        ShowStartPanel();
     }
 
     void Update()
     {
+        // Only handle input if game has started
+        if (!gameStarted) return;
+
         // Only handle touch input if not dragging from UI
         if (!isDragging)
         {
             HandleInput();
         }
     }
+
+    #region Game State Management
+    void ShowStartPanel()
+    {
+        gameStarted = false;
+        
+        // Show start panel
+        if (startPanel != null)
+            startPanel.SetActive(true);
+        
+        // Hide main UI
+        if (mainUI != null)
+            mainUI.SetActive(false);
+        
+        // Hide individual buttons if mainUI is not set
+        if (mainUI == null)
+        {
+            if (environmentButton != null)
+                environmentButton.SetActive(false);
+            if (objectsButton != null)
+                objectsButton.SetActive(false);
+        }
+
+        // Hide AR planes initially
+        HideARPlanes();
+    }
+
+    public void StartGame()
+    {
+        gameStarted = true;
+        
+        // Hide start panel
+        if (startPanel != null)
+            startPanel.SetActive(false);
+        
+        // Show main UI
+        if (mainUI != null)
+        {
+            mainUI.SetActive(true);
+        }
+        else
+        {
+            // Show environment button only initially
+            if (environmentButton != null)
+                environmentButton.SetActive(true);
+            // Objects button stays hidden until environment is placed
+        }
+
+        // Show AR planes when game starts
+        ShowARPlanes();
+
+        Debug.Log("Game started - AR placement is now active");
+    }
+
+    public void ShowControls()
+    {
+        // This method can be called by a "How to Play" button
+        // You could show a controls panel or expand the start panel
+        Debug.Log("Showing controls information");
+    }
+
+    public void RestartGame()
+    {
+        // Reset everything and go back to start panel
+        DeleteEverything();
+        ShowStartPanel();
+        Debug.Log("Game restarted");
+    }
+    #endregion
 
     #region Input Handling
     void HandleInput()
@@ -701,6 +777,7 @@ public class ARPlacementManager : MonoBehaviour
         }
     }
     #endregion
+
     #endregion
 
     #region Utility
