@@ -322,7 +322,7 @@ MonoBehaviour:
   maxScale: 3
   pinchSensitivity: 0.05
   minimumTouchPressure: 0.3
-  selectedColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
+  selectedColor: {r: 1, g: 0.98803854, b: 0.015686274, a: 1}
   manipulateObjectsWithEnvironment: 1
 --- !u!224 &489727154 stripped
 RectTransform:
@@ -925,9 +925,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1980866533}
-  - component: {fileID: 1980866535}
   - component: {fileID: 1980866532}
-  - component: {fileID: 1980866531}
   - component: {fileID: 1980866534}
   m_Layer: 0
   m_Name: LeanSelectManager
@@ -936,32 +934,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1980866531
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1980866530}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d63d4be4bed5744479160ea1148b5821, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  deselectWithNothing: 0
-  limit: 0
-  maxSelectables: 5
-  reselect: 3
-  selectables: []
-  onSelected:
-    m_PersistentCalls:
-      m_Calls: []
-  onDeselected:
-    m_PersistentCalls:
-      m_Calls: []
-  onNothing:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &1980866532
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -974,10 +946,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 479d695282ba6cf4ba3ab3c4848f05e8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  deselectWithNothing: 0
-  limit: 0
-  maxSelectables: 5
-  reselect: 3
+  deselectWithNothing: 1
+  limit: 2
+  maxSelectables: 1
+  reselect: 0
   selectables: []
   onSelected:
     m_PersistentCalls:
@@ -1025,26 +997,44 @@ MonoBehaviour:
   m_GameObject: {fileID: 1980866530}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: a75d536e93a708e4a83fdafdf2af45be, type: 3}
+  m_Script: {fileID: 11500000, guid: f7c1c71d8ad5da9438de3b2e5990763f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1980866535
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1980866530}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 02e37bf9d23704849b6d4bb2fae198be, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  selfSelected: 0
-  onSelected:
+  ignoreStartedOverGui: 1
+  ignoreIsOverGui: 0
+  requiredSelectable: {fileID: 0}
+  requiredTapCount: 0
+  requiredTapInterval: 0
+  onFinger:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1980866532}
+        m_TargetAssemblyTypeName: Lean.Touch.LeanSelectByFinger, LeanTouch
+        m_MethodName: SelectScreenPosition
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  onCount:
     m_PersistentCalls:
       m_Calls: []
-  onDeselected:
+  ScreenDepth:
+    Conversion: 2
+    Camera: {fileID: 6839222652386350789}
+    Object: {fileID: 0}
+    Layers:
+      serializedVersion: 2
+      m_Bits: 4294967291
+    Distance: 0
+  onWorld:
+    m_PersistentCalls:
+      m_Calls: []
+  onScreen:
     m_PersistentCalls:
       m_Calls: []
 --- !u!114 &67857839570444279
@@ -1934,7 +1924,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5454920707d82949acddc54768b6318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabToPlace: {fileID: 613112490663731778, guid: 4de387bdd47bdeb4ba9efd05399b135b, type: 3}
+  prefabToPlace: {fileID: 613112490663731778, guid: ffa7bf2183f925a40a7d53aa9d451fd0, type: 3}
   dragThreshold: 10
 --- !u!224 &4695254116003695420
 RectTransform:

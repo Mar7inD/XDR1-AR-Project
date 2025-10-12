@@ -210,6 +210,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   prefabToPlace: {fileID: 3723368915350051141, guid: 8816a36a14e4a0541b1766d143b93e6e, type: 3}
+  dragThreshold: 10
 --- !u!1 &6953108779531257260
 GameObject:
   m_ObjectHideFlags: 0
@@ -448,7 +449,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f5454920707d82949acddc54768b6318, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  prefabToPlace: {fileID: 613112490663731778, guid: 4de387bdd47bdeb4ba9efd05399b135b, type: 3}
+  prefabToPlace: {fileID: 613112490663731778, guid: ffa7bf2183f925a40a7d53aa9d451fd0, type: 3}
+  dragThreshold: 10
 --- !u!1 &8239745312836869769
 GameObject:
   m_ObjectHideFlags: 0

@@ -85,6 +85,10 @@ public class ARPlacementManager : MonoBehaviour
         // Get input devices
         touchscreen = Touchscreen.current;
         mouse = Mouse.current;
+
+        // Initially hide objects button until environment is placed
+        if (objectsButton != null)
+            objectsButton.SetActive(false);
     }
 
     void Update()
@@ -313,6 +317,10 @@ public class ARPlacementManager : MonoBehaviour
 
             // Hide environment UI when environment is placed
             HidePanel(environmentButton);
+
+            // Show objects button when environment is placed
+            if (objectsButton != null)
+                objectsButton.SetActive(true);
         }
         else
         {
@@ -557,6 +565,43 @@ public class ARPlacementManager : MonoBehaviour
         }
     }
 
+    public void DeleteObject(GameObject objectToDelete)
+    {
+        if (objectToDelete == null)
+        {
+            Debug.LogWarning("Cannot delete null object");
+            return;
+        }
+
+        Debug.Log($"Deleting object: {objectToDelete.name}");
+
+        // Check if it's the current environment
+        if (objectToDelete == currentEnvironment)
+        {
+            DeleteEnvironment();
+            return;
+        }
+
+        // Remove from spawned objects list
+        spawnedObjects.Remove(objectToDelete);
+
+        // If the object is a child of the environment, also remove any children from the spawned objects list
+        if (currentEnvironment != null && objectToDelete.transform.IsChildOf(currentEnvironment.transform))
+        {
+            Transform[] children = objectToDelete.GetComponentsInChildren<Transform>();
+            foreach (Transform child in children)
+            {
+                if (child != objectToDelete.transform)
+                {
+                    spawnedObjects.Remove(child.gameObject);
+                }
+            }
+        }
+
+        // Destroy the object
+        Destroy(objectToDelete);
+    }
+
     private void HideARPlanes()
     {
         if (planeManager != null)
@@ -610,6 +655,14 @@ public class ARPlacementManager : MonoBehaviour
             CancelPlacement();
         }
 
+        // Hide objects button and panel when everything is deleted
+        if (objectsButton != null)
+        {
+            objectsButton.SetActive(false);
+            if (objectsPanelToggle != null)
+                objectsPanelToggle.HidePanel();
+        }
+
         Debug.Log("Deleted everything in the scene");
     }
 
@@ -618,26 +671,33 @@ public class ARPlacementManager : MonoBehaviour
     {
         if (button != null)
         {
-            if (IsEnvironmentPrefab(button))
+            if (button == environmentButton)
             {
                 button.SetActive(false);
-                environmentPanelToggle.HidePanel();
+                if (environmentPanelToggle != null)
+                    environmentPanelToggle.HidePanel();
                 Debug.Log("Hidden environment button");
             }
-            else
+            else if (button == objectsButton)
             {
-                objectsPanelToggle.HidePanel();
-                Debug.Log("Hidden objects button");
+                if (objectsPanelToggle != null)
+                    objectsPanelToggle.HidePanel();
+                Debug.Log("Hidden objects panel");
             }
         }
     }
 
     private void ShowPanel(GameObject button)
     {
-        if (IsEnvironmentPrefab(button))
+        if (button == environmentButton)
         {
             environmentButton.SetActive(true);
             Debug.Log("Shown environment button");
+        }
+        else if (button == objectsButton)
+        {
+            objectsButton.SetActive(true);
+            Debug.Log("Shown objects button");
         }
     }
     #endregion
