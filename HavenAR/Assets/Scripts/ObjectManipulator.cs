@@ -420,7 +420,6 @@ public class ObjectManipulator : MonoBehaviour
         }
     }
 
-    // Remove the old two-finger gesture methods and update the pinch gesture
     void HandlePinchGesture(UnityEngine.InputSystem.Controls.TouchControl touch1, UnityEngine.InputSystem.Controls.TouchControl touch2)
     {
         if (selectedObject == null) return;
@@ -473,7 +472,6 @@ public class ObjectManipulator : MonoBehaviour
         }
     }
 
-    // Update the existing HandleTouchBegan method to only handle selection and drag initiation
     private void HandleTouchBegan(Vector2 screenPos)
     {
         if (arCamera == null) return;
@@ -695,7 +693,7 @@ public class ObjectManipulator : MonoBehaviour
         }
 
         // Check for specific scalable tags
-        if (obj.CompareTag("Environment") ||  // Add Environment tag
+        if (obj.CompareTag("Environment") ||
             obj.CompareTag("Scalable"))
         {
             return true;
@@ -826,17 +824,17 @@ public class ObjectManipulator : MonoBehaviour
             if (renderers[i] == null) continue;
 
             // Store the ORIGINAL material (not the current one)
-            Material originalMat = renderers[i].sharedMaterial; // Use sharedMaterial instead of material
+            Material originalMat = renderers[i].sharedMaterial;
             originals.Add(originalMat);
 
             // Create a tinted version for selection
             if (originalMat != null && originalMat.HasProperty("_Color"))
             {
-                Material tintedMat = new Material(originalMat); // Create a copy
+                Material tintedMat = new Material(originalMat);
                 Color originalColor = originalMat.color;
                 Color tintedColor = Color.Lerp(originalColor, selectedColor, 0.5f);
                 tintedMat.color = tintedColor;
-                renderers[i].material = tintedMat; // This creates an instance
+                renderers[i].material = tintedMat;
             }
             else
             {
@@ -866,13 +864,11 @@ public class ObjectManipulator : MonoBehaviour
             {
                 if (renderers[i] != null && originalMaterials[i] != null)
                 {
-                    // Destroy the current material instance to prevent memory leaks
                     if (renderers[i].material != originalMaterials[i])
                     {
                         DestroyImmediate(renderers[i].material);
                     }
                     
-                    // Restore the original shared material
                     renderers[i].sharedMaterial = originalMaterials[i];
                 }
             }
