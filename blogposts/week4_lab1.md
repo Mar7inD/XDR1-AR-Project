@@ -2,13 +2,15 @@
 
 [Back](../README.md)
 
+_Lab Week: 1_
+
 _Written by: Martin Donchev_
 
 ## Introduction
 
 HavenAR is a place were you can immerse into an environment using only your phone and headphones. During busy days we do not have a lot of time for relaxation, so we stress out. HeavenAR aims to be an app where you can immerse in a calm environment projected on nearby table. This way you focus on the chosen by you environment and isolate the stress factor.
 
-## Current progress
+## Progress
 
 ### Ideation
 
@@ -39,3 +41,4 @@ However, the effort paid off. The drag-and-drop interaction feels intuitive and 
 - [Fire](https://assetstore.unity.com/packages/vfx/particles/fire-explosions/free-fire-vfx-urp-266226)
 - [Dog](https://assetstore.unity.com/packages/3d/characters/animals/mammals/3d-stylized-animated-dogs-kit-284699)
 - [Pictures](https://www.flaticon.com/)
+- [Sounds](https://pixabay.com/)
