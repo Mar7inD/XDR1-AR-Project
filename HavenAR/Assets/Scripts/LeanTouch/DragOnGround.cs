@@ -4,19 +4,25 @@ using UnityEngine.XR.ARFoundation;
 
 public class DragOnGround : MonoBehaviour
 {
-    public float yOffset = 0.01f; // Small offset above the detected plane
-    public LayerMask landLayer = -1; // Layer mask for land detection
+    public float yOffset = 0.01f;
+    public LayerMask landLayer = -1;
+    public bool alwaysStayOnLand = true;
+    public float minHeightAboveLand = 0.001f; // Minimum distance to consider "above land"
+    public float maxHeightAboveLand = 0.001f; // Maximum allowed height above land before pulling down
     
     private LeanDragTranslate drag;
     private bool isEnvironmentObject = false;
     private ARPlaneManager planeManager;
+    private ARPlacementManager arPlacementManager => ARPlacementManager.Instance;
+    private Vector3 lastPosition;
+    private bool hasMovedThisFrame = false;
 
     void Start()
     {
         drag = GetComponent<LeanDragTranslate>();
         planeManager = FindFirstObjectByType<ARPlaneManager>();
+        lastPosition = transform.position;
         
-        // Check if this is an environment object
         PrefabIdentifier identifier = GetComponent<PrefabIdentifier>();
         if (identifier != null)
         {
@@ -24,28 +30,81 @@ public class DragOnGround : MonoBehaviour
         }
         else
         {
-            // Fallback: check if object has Environment tag
             isEnvironmentObject = CompareTag("Environment");
+        }
+
+        if (!isEnvironmentObject)
+        {
+            StayOnTopOfLand();
         }
     }
 
-    void LateUpdate()
+    void Update()
     {
-        if (drag != null)
+        hasMovedThisFrame = false;
+        
+        if (isEnvironmentObject)
         {
-            if (isEnvironmentObject)
+            var pos = transform.position;
+            pos.y = GetPlaneHeight() + yOffset;
+            transform.position = pos;
+            hasMovedThisFrame = true;
+        }
+        else if (alwaysStayOnLand)
+        {
+            // Checks if position changed
+            if (Vector3.Distance(transform.position, lastPosition) > 0.001f)
             {
-                // Environment objects stay at detected plane level
-                var pos = transform.position;
-                pos.y = GetPlaneHeight() + yOffset;
-                transform.position = pos;
-            }
-            else
-            {
-                // Non-environment objects should stay on top of land
                 StayOnTopOfLand();
+                lastPosition = transform.position;
+                hasMovedThisFrame = true;
             }
         }
+    }
+
+    // This is for final checking
+    void LateUpdate()
+    {
+        if (!isEnvironmentObject && alwaysStayOnLand && !hasMovedThisFrame)
+        {
+            var aboveLand = IsProperlyPositionedAboveLand();
+            if (aboveLand == null)
+            {
+                arPlacementManager.DeleteObject(gameObject);
+            }
+            else
+                if ((bool)!aboveLand)
+                {
+                    StayOnTopOfLand();
+                }
+        }
+    }
+
+    bool? IsProperlyPositionedAboveLand()
+    {
+        Vector3 currentPos = transform.position;
+        Ray rayDown = new Ray(currentPos, Vector3.down);
+        
+        // Check with layer mask
+        if (landLayer != -1 && Physics.Raycast(rayDown, out RaycastHit hit, 10f, landLayer))
+        {
+            float heightAboveLand = currentPos.y - hit.point.y;
+            return heightAboveLand >= minHeightAboveLand && heightAboveLand <= maxHeightAboveLand;
+        }
+
+        // Check with Land tag
+        if (Physics.Raycast(rayDown, out hit, 10f))
+        {
+            if (hit.collider.CompareTag("Land"))
+            {
+                float heightAboveLand = currentPos.y - hit.point.y;
+                return heightAboveLand >= minHeightAboveLand && heightAboveLand <= maxHeightAboveLand;
+            }
+        }
+        
+        // If no land found below, delete object
+        return null;
+
     }
 
     float GetPlaneHeight()
@@ -81,44 +140,35 @@ public class DragOnGround : MonoBehaviour
     void StayOnTopOfLand()
     {
         Vector3 currentPos = transform.position;
+        Ray rayDown = new Ray(currentPos + Vector3.up * 0.1f, Vector3.down); // Start slightly above
 
-        // Cast a ray downwards from the object's current position to find land surface
-        Ray rayDown = new Ray(currentPos, Vector3.down);
-
-        // First try with layer mask
-        if (landLayer != -1 && Physics.Raycast(rayDown, out RaycastHit hit, 50f, landLayer))
+        if (landLayer != -1 && Physics.Raycast(rayDown, out RaycastHit hit, 51f, landLayer))
         {
-            transform.position = new Vector3(currentPos.x, hit.point.y, currentPos.z);
+            transform.position = new Vector3(currentPos.x, hit.point.y + yOffset, currentPos.z);
         }
-        // Then try with any collider and check for Land tag
-        else if (Physics.Raycast(rayDown, out hit, 50f))
+        else if (Physics.Raycast(rayDown, out hit, 51f))
         {
             if (hit.collider.CompareTag("Land"))
             {
-                transform.position = new Vector3(currentPos.x, hit.point.y, currentPos.z);
+                transform.position = new Vector3(currentPos.x, hit.point.y + yOffset, currentPos.z);
             }
         }
-        // If no land found below, try casting upwards to check if we're inside/below land
         else
         {
+            // Try upward ray as fallback
             Ray rayUp = new Ray(currentPos, Vector3.up);
-
             if (landLayer != -1 && Physics.Raycast(rayUp, out hit, 50f, landLayer))
             {
-                transform.position = new Vector3(currentPos.x, hit.point.y, currentPos.z);
+                transform.position = new Vector3(currentPos.x, hit.point.y + yOffset, currentPos.z);
             }
-            else if (Physics.Raycast(rayUp, out hit, 50f))
+            else if (Physics.Raycast(rayUp, out hit, 50f) && hit.collider.CompareTag("Land"))
             {
-                if (hit.collider.CompareTag("Land"))
-                {
-                    transform.position = new Vector3(currentPos.x, hit.point.y, currentPos.z);
-                }
+                transform.position = new Vector3(currentPos.x, hit.point.y + yOffset, currentPos.z);
             }
             else
             {
-                // Fallback to ground level if no land found at all
                 var pos = transform.position;
-                pos.y = yOffset; // Changed from yHeight to yOffset
+                pos.y = GetPlaneHeight() + yOffset;
                 transform.position = pos;
             }
         }
