@@ -4,16 +4,15 @@ using UnityEngine.XR.ARFoundation;
 
 public class DragOnGround : MonoBehaviour
 {
-    public float yOffset = 0.01f;
+    public float yOffset = 0.0005f;
     public LayerMask landLayer = -1;
     public bool alwaysStayOnLand = true;
-    public float minHeightAboveLand = 0.001f; // Minimum distance to consider "above land"
+    public float minHeightAboveLand = 0.0001f; // Minimum distance to consider "above land"
     public float maxHeightAboveLand = 0.001f; // Maximum allowed height above land before pulling down
     
     private LeanDragTranslate drag;
     private bool isEnvironmentObject = false;
     private ARPlaneManager planeManager;
-    private ARPlacementManager arPlacementManager => ARPlacementManager.Instance;
     private Vector3 lastPosition;
     private bool hasMovedThisFrame = false;
 
@@ -41,7 +40,7 @@ public class DragOnGround : MonoBehaviour
 
     void Update()
     {
-        hasMovedThisFrame = false;
+        hasMovedThisFrame = drag.isActiveAndEnabled;
         
         if (isEnvironmentObject)
         {
@@ -49,11 +48,18 @@ public class DragOnGround : MonoBehaviour
             pos.y = GetPlaneHeight() + yOffset;
             transform.position = pos;
             hasMovedThisFrame = true;
+
         }
         else if (alwaysStayOnLand)
         {
-            // Checks if position changed
-            if (Vector3.Distance(transform.position, lastPosition) > 0.001f)
+            // Always check if properly positioned, regardless of movement
+            if (!IsProperlyPositionedAboveLand())
+            {
+                StayOnTopOfLand();
+                hasMovedThisFrame = true;
+            }
+            // Also check for position changes
+            else if (Vector3.Distance(transform.position, lastPosition) > 0.001f)
             {
                 StayOnTopOfLand();
                 lastPosition = transform.position;
@@ -62,38 +68,32 @@ public class DragOnGround : MonoBehaviour
         }
     }
 
-    // This is for final checking
-    void LateUpdate()
-    {
-        if (!isEnvironmentObject && alwaysStayOnLand && !hasMovedThisFrame)
-        {
-            var aboveLand = IsProperlyPositionedAboveLand();
-            if (aboveLand == null)
-            {
-                arPlacementManager.DeleteObject(gameObject);
-            }
-            else
-                if ((bool)!aboveLand)
-                {
-                    StayOnTopOfLand();
-                }
-        }
-    }
+    // // This is for final checking
+    // void LateUpdate()
+    // {
+    //     if (!isEnvironmentObject && alwaysStayOnLand && !hasMovedThisFrame)
+    //     {
+    //         if (!IsProperlyPositionedAboveLand())
+    //         {
+    //             StayOnTopOfLand();
+    //         }
+    //     }
+    // }
 
-    bool? IsProperlyPositionedAboveLand()
+    bool IsProperlyPositionedAboveLand()
     {
         Vector3 currentPos = transform.position;
         Ray rayDown = new Ray(currentPos, Vector3.down);
         
-        // Check with layer mask
-        if (landLayer != -1 && Physics.Raycast(rayDown, out RaycastHit hit, 10f, landLayer))
+        // Increase raycast distance to handle high objects
+        if (landLayer != -1 && Physics.Raycast(rayDown, out RaycastHit hit, 100f, landLayer))
         {
             float heightAboveLand = currentPos.y - hit.point.y;
             return heightAboveLand >= minHeightAboveLand && heightAboveLand <= maxHeightAboveLand;
         }
-
-        // Check with Land tag
-        if (Physics.Raycast(rayDown, out hit, 10f))
+        
+        // Check with Land tag - also increase distance
+        if (Physics.Raycast(rayDown, out hit, 100f))
         {
             if (hit.collider.CompareTag("Land"))
             {
@@ -102,9 +102,8 @@ public class DragOnGround : MonoBehaviour
             }
         }
         
-        // If no land found below, delete object
-        return null;
-
+        // If no land found below, the object is definitely not properly positioned
+        return false;
     }
 
     float GetPlaneHeight()

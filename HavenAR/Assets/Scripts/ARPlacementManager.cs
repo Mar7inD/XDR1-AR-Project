@@ -57,7 +57,7 @@ public class ARPlacementManager : MonoBehaviour
     // Input System references
     private Touchscreen touchscreen;
     private Mouse mouse;
-    private List<PlacementButton> objectButtons = new List<PlacementButton>();
+    private Dictionary<string, PlacementButton> prefabToButtonMap = new Dictionary<string, PlacementButton>();
     private PlacementButton currentPlacementButton;
 
     void Awake()
@@ -681,6 +681,10 @@ public class ARPlacementManager : MonoBehaviour
             return;
         }
 
+        // Get the prefab name before deletion to find the corresponding button
+        PrefabIdentifier identifier = objectToDelete.GetComponent<PrefabIdentifier>();
+        string prefabName = identifier != null ? identifier.prefabName : objectToDelete.name;
+
         // Remove from spawned objects list
         spawnedObjects.Remove(objectToDelete);
 
@@ -697,9 +701,38 @@ public class ARPlacementManager : MonoBehaviour
             }
         }
 
+        // Reset the corresponding button for this object type using dictionary lookup
+        ResetButtonForPrefab(prefabName);
+
         // Destroy the object
         Destroy(objectToDelete);
     }
+
+    public void DeleteEverything()
+    {
+        DeleteAllObjects();
+        DeleteEnvironment();
+
+        // Also cancel any current placement
+        if (IsPlacing)
+        {
+            CancelPlacement();
+        }
+
+        // Re-enable all object buttons when everything is deleted
+        ResetAllObjectButtons();
+
+        // Hide objects button and panel when everything is deleted
+        if (objectsButton != null)
+        {
+            objectsButton.SetActive(false);
+            if (objectsPanelToggle != null)
+                objectsPanelToggle.HidePanel();
+        }
+
+        Debug.Log("Deleted everything in the scene - all object buttons re-enabled");
+    }
+    #endregion
 
     private void HideARPlanes()
     {
@@ -766,31 +799,6 @@ public class ARPlacementManager : MonoBehaviour
         }
     }
 
-    public void DeleteEverything()
-    {
-        DeleteAllObjects();
-        DeleteEnvironment();
-
-        // Also cancel any current placement
-        if (IsPlacing)
-        {
-            CancelPlacement();
-        }
-
-        // Re-enable all object buttons when everything is deleted
-        ResetAllObjectButtons();
-
-        // Hide objects button and panel when everything is deleted
-        if (objectsButton != null)
-        {
-            objectsButton.SetActive(false);
-            if (objectsPanelToggle != null)
-                objectsPanelToggle.HidePanel();
-        }
-
-        Debug.Log("Deleted everything in the scene - all object buttons re-enabled");
-    }
-
     #region UI Management
     private void HidePanel(GameObject button)
     {
@@ -827,8 +835,6 @@ public class ARPlacementManager : MonoBehaviour
     }
     #endregion
 
-    #endregion
-
     #region Utility
     public List<GameObject> GetSpawnedObjects()
     {
@@ -844,24 +850,102 @@ public class ARPlacementManager : MonoBehaviour
     #endregion
 
     #region Button Management
-    public void RegisterObjectButton(PlacementButton button)
+    public void RegisterObjectButton(PlacementButton button, GameObject prefab)
     {
-        if (button.IsObjectButton() && !objectButtons.Contains(button))
+        if (button.IsObjectButton() && prefab != null)
         {
-            objectButtons.Add(button);
+            string prefabName = prefab.name;
+            if (prefabToButtonMap.ContainsKey(prefabName))
+            {
+                Debug.LogWarning($"Button for prefab {prefabName} already registered. Overwriting.");
+            }
+            prefabToButtonMap[prefabName] = button;
+            Debug.Log($"Registered button for prefab: {prefabName}");
+        }
+    }
+
+    private void ResetButtonForPrefab(string prefabName)
+    {
+        if (prefabToButtonMap.TryGetValue(prefabName, out PlacementButton button))
+        {
+            if (button != null)
+            {
+                button.ResetButton();
+                Debug.Log($"Reset button for {prefabName}");
+            }
+            else
+            {
+                // Clean up null reference
+                prefabToButtonMap.Remove(prefabName);
+                Debug.LogWarning($"Found null button for prefab {prefabName}, removed from dictionary");
+            }
+        }
+        else
+        {
+            Debug.LogWarning($"No button found for prefab: {prefabName}");
         }
     }
     
     private void ResetAllObjectButtons()
     {
-        foreach (PlacementButton button in objectButtons)
+        List<string> keysToRemove = new List<string>();
+        
+        foreach (var kvp in prefabToButtonMap)
         {
-            if (button != null)
+            if (kvp.Value != null)
             {
-                button.ResetButton();
+                kvp.Value.ResetButton();
+            }
+            else
+            {
+                keysToRemove.Add(kvp.Key);
             }
         }
+        
+        // Clean up null references
+        foreach (string key in keysToRemove)
+        {
+            prefabToButtonMap.Remove(key);
+            Debug.Log($"Removed null button reference for prefab: {key}");
+        }
+        
         currentPlacementButton = null;
+    }
+
+    // Helper methods for working with the dictionary
+    public PlacementButton GetButtonForPrefab(string prefabName)
+    {
+        prefabToButtonMap.TryGetValue(prefabName, out PlacementButton button);
+        return button;
+    }
+
+    public List<string> GetRegisteredPrefabNames()
+    {
+        return new List<string>(prefabToButtonMap.Keys);
+    }
+
+    public int GetRegisteredButtonCount()
+    {
+        return prefabToButtonMap.Count;
+    }
+
+    public void CleanupButtonReferences()
+    {
+        List<string> keysToRemove = new List<string>();
+        
+        foreach (var kvp in prefabToButtonMap)
+        {
+            if (kvp.Value == null)
+            {
+                keysToRemove.Add(kvp.Key);
+            }
+        }
+        
+        foreach (string key in keysToRemove)
+        {
+            prefabToButtonMap.Remove(key);
+            Debug.Log($"Removed null button reference for prefab: {key}");
+        }
     }
     #endregion
 }

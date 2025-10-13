@@ -37,9 +37,9 @@ public class PlacementButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         }
         
         // Register this button with the ARPlacementManager if it's an object button
-        if (isObjectButton && ARPlacementManager.Instance != null)
+        if (isObjectButton && ARPlacementManager.Instance != null && prefabToPlace != null)
         {
-            ARPlacementManager.Instance.RegisterObjectButton(this);
+            ARPlacementManager.Instance.RegisterObjectButton(this, prefabToPlace); // Fixed: now passing both parameters
         }
     }
 
@@ -103,11 +103,9 @@ public class PlacementButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             button.interactable = false;
         }
         
-        // Update visual appearance
         UpdateVisualState();
     }
     
-    // Method to reset this button (re-enable it)
     public void ResetButton()
     {
         hasBeenUsed = false;
@@ -116,7 +114,6 @@ public class PlacementButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
             button.interactable = true;
         }
         
-        // Restore original appearance
         UpdateVisualState();
     }
     
@@ -126,14 +123,12 @@ public class PlacementButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         
         if (hasBeenUsed)
         {
-            // Apply disabled appearance
             Color disabledColor = disabledTint;
             disabledColor.a = disabledAlpha;
             buttonImage.color = disabledColor;
         }
         else
         {
-            // Restore original appearance
             buttonImage.color = originalColor;
         }
     }

@@ -35,7 +35,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.49491775, y: 0.49491775, z: 0.49491775}
+  m_LocalScale: {x: 0.39151147, y: 0.39151147, z: 0.39151147}
   m_ConstrainProportionsScale: 1
   m_Children:
   - {fileID: 4564405244372000449}
@@ -114,12 +114,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 286fb48d931dafe4fa34a04a09485216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  yOffset: 0.01
+  yOffset: 0.0005
   landLayer:
     serializedVersion: 2
-    m_Bits: 4294967295
+    m_Bits: 0
   alwaysStayOnLand: 1
-  minHeightAboveLand: 0.001
+  minHeightAboveLand: 0.0001
   maxHeightAboveLand: 0.001
 --- !u!114 &4447973604586443186
 MonoBehaviour:

@@ -219,10 +219,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 286fb48d931dafe4fa34a04a09485216, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  yHeight: 0
+  yOffset: 0.01
   landLayer:
     serializedVersion: 2
     m_Bits: 1073742119
+  alwaysStayOnLand: 0
+  minHeightAboveLand: 0.001
+  maxHeightAboveLand: 0.1
 --- !u!114 &6085512950160422920
 MonoBehaviour:
   m_ObjectHideFlags: 0
