@@ -684,6 +684,7 @@ public class ARPlacementManager : MonoBehaviour
         {
             foreach (var plane in planeManager.trackables)
             {
+                // Hide visual representation
                 if (plane.TryGetComponent<ARFeatheredPlaneMeshVisualizerCompanion>(out var visualizer))
                 {
                     visualizer.visualizeSurfaces = false;
@@ -695,7 +696,20 @@ public class ARPlacementManager : MonoBehaviour
                     if (meshRenderer != null)
                         meshRenderer.enabled = false;
                 }
+
+                // Disable plane collider
+                var planeCollider = plane.GetComponent<Collider>();
+                if (planeCollider != null)
+                {
+                    planeCollider.enabled = false;
+                }
+
+                // Alternative: Disable the entire plane GameObject
+                // plane.gameObject.SetActive(false);
             }
+
+            // Also disable plane detection to prevent new planes from appearing
+            planeManager.enabled = false;
         }
     }
 
@@ -703,8 +717,12 @@ public class ARPlacementManager : MonoBehaviour
     {
         if (planeManager != null)
         {
+            // Re-enable plane detection
+            planeManager.enabled = true;
+
             foreach (var plane in planeManager.trackables)
             {
+                // Show visual representation
                 if (plane.TryGetComponent<ARFeatheredPlaneMeshVisualizerCompanion>(out var visualizer))
                 {
                     visualizer.visualizeSurfaces = true;
@@ -716,6 +734,16 @@ public class ARPlacementManager : MonoBehaviour
                     if (meshRenderer != null)
                         meshRenderer.enabled = true;
                 }
+
+                // Re-enable plane collider
+                var planeCollider = plane.GetComponent<Collider>();
+                if (planeCollider != null)
+                {
+                    planeCollider.enabled = true;
+                }
+
+                // Alternative: Re-enable the entire plane GameObject
+                // plane.gameObject.SetActive(true);
             }
         }
     }

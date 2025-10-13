@@ -24,7 +24,6 @@ public class ObjectManipulator : MonoBehaviour
 
     private GameObject selectedObject;
     private Material[] originalMaterials;
-    private Material[] outlineMaterials;
     private Camera arCamera;
     private ARRaycastManager raycastManager;
     private List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
@@ -694,7 +693,7 @@ public class ObjectManipulator : MonoBehaviour
         }
 
         // Check for specific scalable tags
-        if (obj.CompareTag("Environment") ||  // Add Environment tag
+        if (obj.CompareTag("Environment") ||
             obj.CompareTag("Scalable"))
         {
             return true;
@@ -825,17 +824,17 @@ public class ObjectManipulator : MonoBehaviour
             if (renderers[i] == null) continue;
 
             // Store the ORIGINAL material (not the current one)
-            Material originalMat = renderers[i].sharedMaterial; // Use sharedMaterial instead of material
+            Material originalMat = renderers[i].sharedMaterial;
             originals.Add(originalMat);
 
             // Create a tinted version for selection
             if (originalMat != null && originalMat.HasProperty("_Color"))
             {
-                Material tintedMat = new Material(originalMat); // Create a copy
+                Material tintedMat = new Material(originalMat);
                 Color originalColor = originalMat.color;
                 Color tintedColor = Color.Lerp(originalColor, selectedColor, 0.5f);
                 tintedMat.color = tintedColor;
-                renderers[i].material = tintedMat; // This creates an instance
+                renderers[i].material = tintedMat;
             }
             else
             {
@@ -865,13 +864,11 @@ public class ObjectManipulator : MonoBehaviour
             {
                 if (renderers[i] != null && originalMaterials[i] != null)
                 {
-                    // Destroy the current material instance to prevent memory leaks
                     if (renderers[i].material != originalMaterials[i])
                     {
                         DestroyImmediate(renderers[i].material);
                     }
                     
-                    // Restore the original shared material
                     renderers[i].sharedMaterial = originalMaterials[i];
                 }
             }
@@ -879,7 +876,6 @@ public class ObjectManipulator : MonoBehaviour
 
         // Clear the stored materials
         originalMaterials = null;
-        outlineMaterials = null;
 
         Debug.Log($"Removed selection outline from {selectedObject?.name}");
     }
