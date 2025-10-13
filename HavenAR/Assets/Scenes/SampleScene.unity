@@ -383,8 +383,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Start
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d1728ba5990034831bbe01f3a2578b70, type: 2}
+  m_sharedMaterial: {fileID: 4687939059374929122, guid: d1728ba5990034831bbe01f3a2578b70, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -418,7 +418,7 @@ MonoBehaviour:
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
   m_textAlignment: 65535
-  m_characterSpacing: 0
+  m_characterSpacing: 10
   m_wordSpacing: 0
   m_lineSpacing: 0
   m_lineSpacingMax: 0
@@ -470,7 +470,7 @@ GameObject:
   - component: {fileID: 212058806}
   - component: {fileID: 212058805}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Title
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -483,17 +483,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 212058803}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 4.3186, y: 1, z: 1}
+  m_LocalScale: {x: 4.3185997, y: 1.2176709, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1713928306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 211}
-  m_SizeDelta: {x: 400, y: 90}
+  m_AnchoredPosition: {x: 0, y: 349}
+  m_SizeDelta: {x: 400, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &212058805
 MonoBehaviour:
@@ -517,8 +517,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Welcome to HavenAR
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d1728ba5990034831bbe01f3a2578b70, type: 2}
+  m_sharedMaterial: {fileID: 4687939059374929122, guid: d1728ba5990034831bbe01f3a2578b70, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -542,10 +542,10 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 40.4
-  m_fontSizeBase: 30
+  m_fontSize: 40
+  m_fontSizeBase: 40
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
@@ -654,6 +654,7 @@ MonoBehaviour:
   objectManipulator: {fileID: 109418118}
   environmentButton: {fileID: 1808477567}
   objectsButton: {fileID: 1254799058}
+  deleteButton: {fileID: 1906806396}
   startPanel: {fileID: 1713928305}
   mainUI: {fileID: 0}
 --- !u!1 &702413256
@@ -728,7 +729,7 @@ GameObject:
   - component: {fileID: 1038982183}
   - component: {fileID: 1038982182}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -741,17 +742,17 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1038982180}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1.2176709, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 1713928306}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: -80}
-  m_SizeDelta: {x: 1800, y: 400}
+  m_AnchoredPosition: {x: 0, y: -5.342224}
+  m_SizeDelta: {x: 1600, y: 400}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1038982182
 MonoBehaviour:
@@ -773,25 +774,25 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: '- Drag objects from the menu to place them
+  m_text: 'Control Guide:
 
+    - Drag objects from the menu to place them
 
-    - Tap on placed objects
-    to select and manipulate them
+    -
+    Tap on placed objects to select and manipulate them:
 
+    - Use finger to drag
+    objects
 
     - Use pinch gestures to scale objects
 
+    - Use twist gestures
+    to rotate object on axes
 
-    -
-    Use twist gestures to rotate object on axes
-
-
-    - Place an environment first,
-    then add objects'
+    - Place an environment first, then add objects'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: d1728ba5990034831bbe01f3a2578b70, type: 2}
+  m_sharedMaterial: {fileID: 4687939059374929122, guid: d1728ba5990034831bbe01f3a2578b70, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -815,21 +816,21 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 38.75
+  m_fontSize: 36
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 1
+  m_enableAutoSizing: 0
   m_fontSizeMin: 18
   m_fontSizeMax: 72
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 256
   m_textAlignment: 65535
-  m_characterSpacing: 0
-  m_wordSpacing: 0
+  m_characterSpacing: 6
+  m_wordSpacing: 2
   m_lineSpacing: 0
   m_lineSpacingMax: 0
-  m_paragraphSpacing: 0
+  m_paragraphSpacing: 40
   m_charWidthMaxAdj: 0
   m_enableWordWrapping: 1
   m_wordWrappingRatios: 0.4
@@ -1053,6 +1054,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabToPlace: {fileID: 6544990386230654568, guid: cbd015c8392edc84097e8e4de87a9d0a, type: 3}
   dragThreshold: 10
+  isObjectButton: 1
+  disabledAlpha: 0.9
+  disabledTint: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &1197152334
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1273,9 +1277,9 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1294794793}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 1, y: 1.2176709, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 131293913}
@@ -1283,7 +1287,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -24, y: -375}
+  m_AnchoredPosition: {x: -23.999964, y: -364.55515}
   m_SizeDelta: {x: 460, y: 80}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1294794795
@@ -1362,8 +1366,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10905, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 46da8634de2114354be217373280f00a, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -1486,12 +1490,12 @@ RectTransform:
   m_GameObject: {fileID: 1713928305}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.51883, y: 1, z: 1}
+  m_LocalScale: {x: 0.51883, y: 0.82124, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 1294794794}
-  - {fileID: 1038982181}
   - {fileID: 212058804}
+  - {fileID: 1038982181}
+  - {fileID: 1294794794}
   m_Father: {fileID: 1249688608}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1519,8 +1523,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 10907, guid: 0000000000000000f000000000000000, type: 0}
-  m_Type: 1
+  m_Sprite: {fileID: 21300000, guid: 46da8634de2114354be217373280f00a, type: 3}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
   m_FillMethod: 4
@@ -2070,6 +2074,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabToPlace: {fileID: 2138386675506694380, guid: ee1d9bcfd487d864fb84b8ceb3671d85, type: 3}
   dragThreshold: 10
+  isObjectButton: 1
+  disabledAlpha: 0.9
+  disabledTint: {r: 1, g: 0, b: 0, a: 1}
 --- !u!114 &2611741351286078850
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2557,6 +2564,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabToPlace: {fileID: 613112490663731778, guid: ffa7bf2183f925a40a7d53aa9d451fd0, type: 3}
   dragThreshold: 10
+  isObjectButton: 0
+  disabledAlpha: 0.5
+  disabledTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!224 &4695254116003695420
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2850,6 +2860,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prefabToPlace: {fileID: 3723368915350051141, guid: 8816a36a14e4a0541b1766d143b93e6e, type: 3}
   dragThreshold: 10
+  isObjectButton: 0
+  disabledAlpha: 0.5
+  disabledTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
 --- !u!4 &6369118797035954451
 Transform:
   m_ObjectHideFlags: 0
