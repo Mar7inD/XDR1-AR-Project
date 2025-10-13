@@ -35,6 +35,8 @@ public class ARPlacementManager : MonoBehaviour
     [Header("UI References")]
     public GameObject environmentButton;
     public GameObject objectsButton;
+    public GameObject startPanel;
+    public GameObject mainUI;
 
     // Current state
     private PanelToggle environmentPanelToggle;
@@ -44,6 +46,9 @@ public class ARPlacementManager : MonoBehaviour
     private GameObject currentEnvironment;
     private List<GameObject> spawnedObjects = new List<GameObject>();
     private List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
+
+    // Game state
+    private bool gameStarted = false;
 
     // Drag and drop state
     private bool isDragging = false;
@@ -85,16 +90,91 @@ public class ARPlacementManager : MonoBehaviour
         // Get input devices
         touchscreen = Touchscreen.current;
         mouse = Mouse.current;
+
+        // Initialize UI state - show start panel, hide everything else
+        ShowStartPanel();
     }
 
     void Update()
     {
+        // Only handle input if game has started
+        if (!gameStarted) return;
+
         // Only handle touch input if not dragging from UI
         if (!isDragging)
         {
             HandleInput();
         }
     }
+
+    #region Game State Management
+    void ShowStartPanel()
+    {
+        gameStarted = false;
+        
+        // Show start panel
+        if (startPanel != null)
+            startPanel.SetActive(true);
+        
+        // Hide main UI
+        if (mainUI != null)
+            mainUI.SetActive(false);
+        
+        // Hide individual buttons if mainUI is not set
+        if (mainUI == null)
+        {
+            if (environmentButton != null)
+                environmentButton.SetActive(false);
+            if (objectsButton != null)
+                objectsButton.SetActive(false);
+        }
+
+        // Hide AR planes initially
+        HideARPlanes();
+    }
+
+    public void StartGame()
+    {
+        gameStarted = true;
+        
+        // Hide start panel
+        if (startPanel != null)
+            startPanel.SetActive(false);
+        
+        // Show main UI
+        if (mainUI != null)
+        {
+            mainUI.SetActive(true);
+        }
+        else
+        {
+            // Show environment button only initially
+            if (environmentButton != null)
+                environmentButton.SetActive(true);
+            // Objects button stays hidden until environment is placed
+        }
+
+        // Show AR planes when game starts
+        ShowARPlanes();
+
+        Debug.Log("Game started - AR placement is now active");
+    }
+
+    public void ShowControls()
+    {
+        // This method can be called by a "How to Play" button
+        // You could show a controls panel or expand the start panel
+        Debug.Log("Showing controls information");
+    }
+
+    public void RestartGame()
+    {
+        // Reset everything and go back to start panel
+        DeleteEverything();
+        ShowStartPanel();
+        Debug.Log("Game restarted");
+    }
+    #endregion
 
     #region Input Handling
     void HandleInput()
@@ -313,12 +393,26 @@ public class ARPlacementManager : MonoBehaviour
 
             // Hide environment UI when environment is placed
             HidePanel(environmentButton);
+
+            // Show objects button when environment is placed
+            if (objectsButton != null)
+                objectsButton.SetActive(true);
         }
         else
         {
-            // Add to spawned objects list for ObjectManipulator access (no parenting)
+            // Parent object to current environment if one exists
+            if (currentEnvironment != null)
+            {
+                placedObject.transform.SetParent(currentEnvironment.transform);
+                Debug.Log($"Placed {placedObject.name} as child of environment {currentEnvironment.name}");
+            }
+            else
+            {
+                Debug.Log($"Placed {placedObject.name} as independent object (no environment)");
+            }
+            
+            // Add to spawned objects list for ObjectManipulator access
             spawnedObjects.Add(placedObject);
-            Debug.Log($"Placed {placedObject.name} as independent object");
             HidePanel(objectsButton);
         }
 
@@ -526,6 +620,16 @@ public class ARPlacementManager : MonoBehaviour
         {
             Debug.Log($"Deleting environment: {currentEnvironment.name}");
 
+            // Remove child objects from spawned objects list before destroying environment
+            Transform[] children = currentEnvironment.GetComponentsInChildren<Transform>();
+            foreach (Transform child in children)
+            {
+                if (child != currentEnvironment.transform) // Don't remove the environment itself
+                {
+                    spawnedObjects.Remove(child.gameObject);
+                }
+            }
+
             Destroy(currentEnvironment);
             currentEnvironment = null;
 
@@ -535,6 +639,43 @@ public class ARPlacementManager : MonoBehaviour
             // Show environment UI again when environment is deleted
             ShowPanel(environmentButton);
         }
+    }
+
+    public void DeleteObject(GameObject objectToDelete)
+    {
+        if (objectToDelete == null)
+        {
+            Debug.LogWarning("Cannot delete null object");
+            return;
+        }
+
+        Debug.Log($"Deleting object: {objectToDelete.name}");
+
+        // Check if it's the current environment
+        if (objectToDelete == currentEnvironment)
+        {
+            DeleteEnvironment();
+            return;
+        }
+
+        // Remove from spawned objects list
+        spawnedObjects.Remove(objectToDelete);
+
+        // If the object is a child of the environment, also remove any children from the spawned objects list
+        if (currentEnvironment != null && objectToDelete.transform.IsChildOf(currentEnvironment.transform))
+        {
+            Transform[] children = objectToDelete.GetComponentsInChildren<Transform>();
+            foreach (Transform child in children)
+            {
+                if (child != objectToDelete.transform)
+                {
+                    spawnedObjects.Remove(child.gameObject);
+                }
+            }
+        }
+
+        // Destroy the object
+        Destroy(objectToDelete);
     }
 
     private void HideARPlanes()
@@ -618,6 +759,14 @@ public class ARPlacementManager : MonoBehaviour
             CancelPlacement();
         }
 
+        // Hide objects button and panel when everything is deleted
+        if (objectsButton != null)
+        {
+            objectsButton.SetActive(false);
+            if (objectsPanelToggle != null)
+                objectsPanelToggle.HidePanel();
+        }
+
         Debug.Log("Deleted everything in the scene");
     }
 
@@ -626,29 +775,37 @@ public class ARPlacementManager : MonoBehaviour
     {
         if (button != null)
         {
-            if (IsEnvironmentPrefab(button))
+            if (button == environmentButton)
             {
                 button.SetActive(false);
-                environmentPanelToggle.HidePanel();
+                if (environmentPanelToggle != null)
+                    environmentPanelToggle.HidePanel();
                 Debug.Log("Hidden environment button");
             }
-            else
+            else if (button == objectsButton)
             {
-                objectsPanelToggle.HidePanel();
-                Debug.Log("Hidden objects button");
+                if (objectsPanelToggle != null)
+                    objectsPanelToggle.HidePanel();
+                Debug.Log("Hidden objects panel");
             }
         }
     }
 
     private void ShowPanel(GameObject button)
     {
-        if (IsEnvironmentPrefab(button))
+        if (button == environmentButton)
         {
             environmentButton.SetActive(true);
             Debug.Log("Shown environment button");
         }
+        else if (button == objectsButton)
+        {
+            objectsButton.SetActive(true);
+            Debug.Log("Shown objects button");
+        }
     }
     #endregion
+
     #endregion
 
     #region Utility

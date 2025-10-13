@@ -28,10 +28,14 @@ After nearly finishing my custom gesture system, I thought, “There’s no way 
 
 ## 3. [Lean Touch](https://assetstore.unity.com/packages/tools/input-management/lean-touch-30111) approach
 
-Lean Touch is a widely used gesture control asset for Unity, and after trying it out, I immediately noticed how smooth and well-optimized it was. The package includes several example scenes with clear documentation, making it easy to understand how each interaction works.
+Lean Touch is a popular and well-optimized gesture control asset for Unity. After testing it, I was impressed by how smooth and responsive it felt. The package came with clear documentation and example scenes, making it easy to understand how each interaction worked.
 
-While Lean Touch performed better in terms of responsiveness and polish, I ultimately decided not to switch to it. My custom Object Manipulator already had built-in functionality that integrated deeply with my project. For example, it supported real-time updates to object positions as the environment changed, and worked alongside my [StayOnTop](../HavenAR/Assets/Scripts/StayOnTop.cs) script — which ensures that objects remain properly positioned on land surfaces and don’t sink below them.
+One of the first issues I encountered was with object selection outlines. The default Lean Touch setup didn’t highlight selected objects properly because it assumed that meshes were merged on the parent prefab. In my project, each child retained its own mesh, so I modified the [LeanSelectableRendererColor]( ../HavenAR\Assets\Plugins\CW\LeanCommon\Extras\Scripts\LeanSelectableRendererColor.cs) script to change the color of child meshes instead. After a few challenges, I got it working — the default color now comes from each child’s original color, and the highlight color is fully customizable.
 
-In the end, while Lean Touch was very good, developing my own gesture system gave me a much deeper understanding of input handling, debugging mobile interactions, and balancing between custom control and existing frameworks. It also made the interactions in my project feel uniquely mine — tailored exactly to how I want the AR experience to behave.
+Another issue involved spawning environments and objects. I needed a script that allowed objects to stay grounded and move only along the X and Z axes. To achieve this, I created [DragOnGround](../HavenAR/Assets/Scripts/LeanTouch/DragOnGround.cs), an extension of my existing [StayOnTop](../HavenAR/Assets/Scripts/StayOnTop.cs) script. It ensures that spawned objects align with the terrain height and remain properly positioned on the surface.
 
+## 4. Reflection
 
+Although Lean Touch proved to be a powerful and efficient framework, building my own system from scratch was an invaluable learning experience. It gave me a deeper understanding of touch input handling, multi-touch logic, and gesture detection in Unity. More importantly, it strengthened my ability to debug complex behaviors on mobile devices and taught me how to adapt third-party solutions to fit the specific needs of my project.
+
+In the end, even though I transitioned to a ready-made solution, the process of creating and refining my own gesture system made me a much stronger and more confident developer.

@@ -43,4 +43,3 @@ This period taught me a lot about AR development:
 - Debugging cross-platform input and shader behavior
 
 Most importantly, every challenge became an opportunity to deepen my understanding of Unity, AR interactions, and user experience design.
-

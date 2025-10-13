@@ -68,9 +68,9 @@ public class ObjectManipulator : MonoBehaviour
 
     void Update()
     {
-        HandleInput();
-        HandleKeyboardRotation();
-        HandleMouseScroll();
+        // HandleInput();
+        // HandleKeyboardRotation();
+        // HandleMouseScroll();
 
         // Track environment changes
         TrackEnvironmentChanges();
