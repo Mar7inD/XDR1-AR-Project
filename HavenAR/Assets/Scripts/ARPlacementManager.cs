@@ -57,6 +57,8 @@ public class ARPlacementManager : MonoBehaviour
     // Input System references
     private Touchscreen touchscreen;
     private Mouse mouse;
+    private List<PlacementButton> objectButtons = new List<PlacementButton>();
+    private PlacementButton currentPlacementButton;
 
     void Awake()
     {
@@ -242,6 +244,11 @@ public class ARPlacementManager : MonoBehaviour
     #region Drag and Drop Interface
     public void StartDragging(GameObject prefab)
     {
+        StartDragging(prefab, null);
+    }
+    
+    public void StartDragging(GameObject prefab, PlacementButton sourceButton)
+    {
         if (prefab == null) return;
 
         // Check environment restrictions
@@ -252,6 +259,8 @@ public class ARPlacementManager : MonoBehaviour
         }
 
         currentPrefab = prefab;
+        currentPlacementButton = sourceButton; // Remember which button initiated this placement
+        
         // Match scale to current environment if applicable
         if (currentEnvironment != null && !IsEnvironmentPrefab(currentPrefab))
             currentPrefab.transform.localScale = currentEnvironment.transform.localScale;
@@ -418,10 +427,26 @@ public class ARPlacementManager : MonoBehaviour
             
             // Add to spawned objects list for ObjectManipulator access
             spawnedObjects.Add(placedObject);
+            
+            // Disable only the specific button that was used for this placement
+            if (currentPlacementButton != null && currentPlacementButton.IsObjectButton())
+            {
+                currentPlacementButton.MarkAsUsed();
+                Debug.Log($"Disabled button for {currentPrefab.name}");
+            }
+            
             HidePanel(objectsButton);
         }
 
         CleanupPlacement();
+    }
+
+    void CleanupPlacement()
+    {
+        CleanupPreview();
+        currentPrefab = null;
+        currentPlacementButton = null;
+        isDragging = false;
     }
 
     public void CancelPlacement()
@@ -433,13 +458,6 @@ public class ARPlacementManager : MonoBehaviour
         {
             objectManipulator.DeselectCurrentObject();
         }
-    }
-
-    void CleanupPlacement()
-    {
-        CleanupPreview();
-        currentPrefab = null;
-        isDragging = false;
     }
     #endregion
 
@@ -709,11 +727,9 @@ public class ARPlacementManager : MonoBehaviour
                     planeCollider.enabled = false;
                 }
 
-                // Alternative: Disable the entire plane GameObject
-                // plane.gameObject.SetActive(false);
             }
 
-            // Also disable plane detection to prevent new planes from appearing
+            // Disable plane detection to prevent new planes from appearing
             planeManager.enabled = false;
         }
     }
@@ -746,9 +762,6 @@ public class ARPlacementManager : MonoBehaviour
                 {
                     planeCollider.enabled = true;
                 }
-
-                // Alternative: Re-enable the entire plane GameObject
-                // plane.gameObject.SetActive(true);
             }
         }
     }
@@ -764,6 +777,9 @@ public class ARPlacementManager : MonoBehaviour
             CancelPlacement();
         }
 
+        // Re-enable all object buttons when everything is deleted
+        ResetAllObjectButtons();
+
         // Hide objects button and panel when everything is deleted
         if (objectsButton != null)
         {
@@ -772,7 +788,7 @@ public class ARPlacementManager : MonoBehaviour
                 objectsPanelToggle.HidePanel();
         }
 
-        Debug.Log("Deleted everything in the scene");
+        Debug.Log("Deleted everything in the scene - all object buttons re-enabled");
     }
 
     #region UI Management
@@ -824,6 +840,28 @@ public class ARPlacementManager : MonoBehaviour
     public void RemoveSpawnedObject(GameObject obj)
     {
         spawnedObjects.Remove(obj);
+    }
+    #endregion
+
+    #region Button Management
+    public void RegisterObjectButton(PlacementButton button)
+    {
+        if (button.IsObjectButton() && !objectButtons.Contains(button))
+        {
+            objectButtons.Add(button);
+        }
+    }
+    
+    private void ResetAllObjectButtons()
+    {
+        foreach (PlacementButton button in objectButtons)
+        {
+            if (button != null)
+            {
+                button.ResetButton();
+            }
+        }
+        currentPlacementButton = null;
     }
     #endregion
 }
