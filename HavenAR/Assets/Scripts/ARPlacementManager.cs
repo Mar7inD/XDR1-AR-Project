@@ -35,6 +35,7 @@ public class ARPlacementManager : MonoBehaviour
     [Header("UI References")]
     public GameObject environmentButton;
     public GameObject objectsButton;
+    public GameObject deleteButton;
     public GameObject startPanel;
     public GameObject mainUI;
 
@@ -127,6 +128,8 @@ public class ARPlacementManager : MonoBehaviour
                 environmentButton.SetActive(false);
             if (objectsButton != null)
                 objectsButton.SetActive(false);
+            if (deleteButton != null) // Add this block
+                deleteButton.SetActive(false);
         }
 
         // Hide AR planes initially
@@ -152,6 +155,8 @@ public class ARPlacementManager : MonoBehaviour
             if (environmentButton != null)
                 environmentButton.SetActive(true);
             // Objects button stays hidden until environment is placed
+            if (deleteButton != null) // Add this block
+                deleteButton.SetActive(true);
         }
 
         // Show AR planes when game starts
