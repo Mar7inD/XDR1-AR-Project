@@ -8,10 +8,10 @@ public class PlacementButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
     [Header("Drag Settings")]
     [SerializeField] private float dragThreshold = 10f;
     [Header("Button Settings")]
-    [SerializeField] private bool isObjectButton = false; // Set this to true for object buttons in inspector
+    [SerializeField] private bool isObjectButton = false;
     [Header("Visual Settings")]
-    [SerializeField] private float disabledAlpha = 0.5f; // How transparent when disabled
-    [SerializeField] private Color disabledTint = Color.gray; // Tint color when disabled
+    [SerializeField] private float disabledAlpha = 0.5f;
+    [SerializeField] private Color disabledTint = Color.gray;
     
     private Button button;
     private Image buttonImage;
@@ -39,7 +39,7 @@ public class PlacementButton : MonoBehaviour, IBeginDragHandler, IDragHandler, I
         // Register this button with the ARPlacementManager if it's an object button
         if (isObjectButton && ARPlacementManager.Instance != null && prefabToPlace != null)
         {
-            ARPlacementManager.Instance.RegisterObjectButton(this, prefabToPlace); // Fixed: now passing both parameters
+            ARPlacementManager.Instance.RegisterObjectButton(this, prefabToPlace);
         }
     }
 

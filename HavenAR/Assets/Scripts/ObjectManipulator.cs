@@ -68,9 +68,9 @@ public class ObjectManipulator : MonoBehaviour
 
     void Update()
     {
-        // HandleInput();
-        // HandleKeyboardRotation();
-        // HandleMouseScroll();
+        HandleInput();
+        HandleKeyboardRotation();
+        HandleMouseScroll();
 
         // Track environment changes
         TrackEnvironmentChanges();
@@ -194,7 +194,7 @@ public class ObjectManipulator : MonoBehaviour
                 var primaryTouch = GetPrimaryActiveTouch(touches);
                 if (primaryTouch != null)
                 {
-                    Debug.Log("☝️ Single finger detected");
+                    Debug.Log("Single finger detected");
                     HandleSingleTouchInput(primaryTouch);
                 }
                 // Clear three-finger state when down to one finger
@@ -213,7 +213,7 @@ public class ObjectManipulator : MonoBehaviour
                 }
                 else
                 {
-                    Debug.Log("🔄 Ignoring 2-finger gesture during transition cooldown");
+                    Debug.Log("Ignoring 2-finger gesture during transition cooldown");
                 }
             }
             else if (activeTouchCount == 3 && selectedObject != null)
@@ -225,8 +225,8 @@ public class ObjectManipulator : MonoBehaviour
                     if (!wasThreeFingerRotating)
                     {
                         wasThreeFingerRotating = true;
-                        isPinching = false; // Stop any ongoing pinch
-                        Debug.Log("🔄 Started 3-finger rotation");
+                        isPinching = false;
+                        Debug.Log("Started 3-finger rotation");
                     }
                     HandleThreeFingerRotation(activeTouches[0], activeTouches[1], activeTouches[2]);
                 }
@@ -235,7 +235,7 @@ public class ObjectManipulator : MonoBehaviour
             {
                 // Four or more touches - deselect object
                 DeselectObject();
-                Debug.Log("🖐️ Four fingers detected - deselected object");
+                Debug.Log("Four fingers detected - deselected object");
                 wasThreeFingerRotating = false;
                 gestureTransitionCooldown = 0f;
             }
@@ -244,10 +244,10 @@ public class ObjectManipulator : MonoBehaviour
                 // No touches - check if we were rotating and start cooldown
                 if (wasThreeFingerRotating)
                 {
-                    Debug.Log("🔄 Ended 3-finger rotation - starting transition cooldown");
+                    Debug.Log("Ended 3-finger rotation - starting transition cooldown");
                     wasThreeFingerRotating = false;
                     gestureTransitionCooldown = GESTURE_TRANSITION_DELAY;
-                    isPinching = false; // Ensure pinching is disabled
+                    isPinching = false;
                 }
             }
         }
@@ -427,7 +427,7 @@ public class ObjectManipulator : MonoBehaviour
         // Additional safety check - don't start pinching if we just finished rotating
         if (gestureTransitionCooldown > 0f)
         {
-            Debug.Log("🤏 Pinch blocked - transition cooldown active");
+            Debug.Log("Pinch blocked - transition cooldown active");
             return;
         }
 
@@ -445,7 +445,7 @@ public class ObjectManipulator : MonoBehaviour
             {
                 isPinching = true;
                 lastPinchDistance = currentDistance;
-                Debug.Log("🤏 Started scaling with 2 fingers");
+                Debug.Log("Started scaling with 2 fingers");
                 return;
             }
         }
@@ -458,7 +458,7 @@ public class ObjectManipulator : MonoBehaviour
             ScaleSelectedObject(scaleDelta);
             lastPinchDistance = currentDistance;
             
-            Debug.Log($"🤏 Scaling: {scaleDelta}");
+            Debug.Log($"Scaling: {scaleDelta}");
         }
 
         // End pinching when touches end
@@ -468,7 +468,7 @@ public class ObjectManipulator : MonoBehaviour
             phase2 == UnityEngine.InputSystem.TouchPhase.Canceled)
         {
             isPinching = false;
-            Debug.Log("🤏 Ended scaling");
+            Debug.Log("Ended scaling");
         }
     }
 
@@ -768,7 +768,6 @@ public class ObjectManipulator : MonoBehaviour
         AddSelectionOutline();
 
         // Reset environment tracking when selecting a new object
-        // This prevents objects from jumping when we start manipulating them
         GameObject currentEnvironment = ARPlacementManager.Instance?.GetCurrentEnvironment();
         if (currentEnvironment != null)
         {

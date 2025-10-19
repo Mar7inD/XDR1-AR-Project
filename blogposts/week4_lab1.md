@@ -8,19 +8,29 @@ _Written by: Martin Donchev_
 
 ## Introduction
 
-HavenAR is a place were you can immerse into an environment using only your phone and headphones. During busy days we do not have a lot of time for relaxation, so we stress out. HeavenAR aims to be an app where you can immerse in a calm environment projected on nearby table. This way you focus on the chosen by you environment and isolate the stress factor.
+HeavenAR is designed to let users escape into a calming environment using only their phone and headphones. In our busy daily lives, finding time to relax can be difficult, which often leads to stress. HeavenAR aims to offer a quick mental getaway — an app where you can project a peaceful scene onto a nearby surface like a table or the floor. By immersing into the soothing environment you have created with few clicks, you can disconnect from external stress and recharge.
 
 ## Progress
 
 ### Ideation
 
-The final concept emerged after a long process of ideation. It all began with the idea of using AR to project an object. My first thought was to create a sorting app where AR could help users place trash into the correct bins. However, I realized that simpler non-XR solution already exist in Denmark, with packaging labels that clearly indicate the appropriate recycling bin.
+The final concept emerged several phases of ideation and refinement. It all began with the idea and motivation behind using AR to project an object and being able to control that object through finger gestures. 
 
-From there, I considered developing an AR project using 3D models to enhance understanding, but I found that many such implementations already existed online, and even our teacher showed us student examples. Because of this, I set aside my ideas related to biology and the solar system.
+My first thought was to create a sorting app where AR could help users place trash into the correct bins. However, I realized that simpler non-XR solution already exist in Denmark, with labels on packaging that clearly indicate the appropriate recycling bin.
 
-Still, while brainstorming around the solar system, I imagined portals to different planets and began to wonder: where should a portal to Earth lead? At first, I pictured a bustling city like New York, but then I thought about my own preference—I would rather be in a calm, relaxing place.
+From there, I considered developing an AR project using 3D models to enhance understanding, but I found that many such implementations already existed online, and even our teacher showed us student examples. This motivated me to go with something more unique, so I set aside my ideas related to waste sorting, biology, the solar system.
 
-That shift in perspective inspired my final idea: creating an AR experience that helps people immerse themselves in their favorite peaceful environment. A beach where you can hear waves splashing, a forest filled with birds and deer, or a campfire crackling in the night. A place to focus, recharge, and reduce stress.
+While brainstorming around the solar system, I started thinking about portals to different planets and began to wonder: where should a portal to Earth lead? At first, I pictured a bustling city like New York, but then I thought about my own preference—I would rather be in a calm, relaxing place.
+
+That shift in perspective inspired my final idea: creating an AR experience that helps people immerse themselves in their favorite peaceful environment. A beach where you can hear waves splashing, a forest filled with birds and deer, or a campfire crackling in the night. A place to focus, recharge, and calm yourself.
+
+### Role of AR Technologies
+
+Augmented Reality plays a central role in bringing the concept of HeavenAR to life. Unlike traditional relaxation apps that rely on static images or videos, AR allows users to project immersive 3D environments directly into their real-world space. This creates a stronger sense of presence and connection, as the calming scene becomes part of the user’s surroundings rather than something viewed through a flat screen.
+
+By leveraging surface detection, real-time lighting, and spatial audio, AR technologies make the experience feel more natural and adaptive. For instance, the environment can be placed on a nearby table or the floor, reacting to the physical layout of the room. This interaction transforms an ordinary space into a personalized sanctuary — whether it’s a miniature beach at your desk or a small forest beside your bed.
+
+In short, HeavenAR benefits from AR by enhancing immersion, engagement, and personalization. The technology bridges the gap between the digital and physical worlds, allowing users to take short yet meaningful mental breaks wherever they are, without needing specialized equipment.
 
 ### Assets
 
@@ -30,9 +40,11 @@ The first asset I tried for the water effect was [Water Works by GapperGames Stu
 
 ### UI
 
-So far, I’ve made progress on the UI and the first core features. The environment pane can now be opened, environments can be dragged into place, and their size can be adjusted through scaling. Getting this to work required some setup with controllers and managers, which took time to configure properly.
+So far, I’ve made progress on the UI and the first core features. The environment pane can now be opened, environments can be dragged into place, and their size can be adjusted through scaling panel. Getting this to work required some setup with controllers and managers, which took time to configure properly.
 
-However, the effort paid off. The drag-and-drop interaction feels intuitive and gives a stronger sense of control compared to a simple select-and-click approach. It creates a smoother, more natural workflow for the user, as placing and resizing environments now feels like a hands-on interaction rather than a detached menu action.
+The final result was good. The drag-and-drop interaction were intuitive and gives a stronger sense of control compared to a simple select-and-click approach. It creates a smoother, more natural workflow for the user, as placing environments now feels like a hands-on interaction rather than a detached menu action.
+
+With this my first milestone around setting the environment was done. Next steps are to clean the scripts and add more functionality like spawning objects, panel workflow, audio to objects, clear button, etc. 
 
 ## Assets:
 - [Campfire](https://assetstore.unity.com/packages/3d/props/the-free-medieval-and-war-props-174433)

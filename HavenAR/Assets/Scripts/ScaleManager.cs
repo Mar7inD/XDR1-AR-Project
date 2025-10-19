@@ -178,7 +178,6 @@ public class ScaleManager : MonoBehaviour
             GameObject currentObj = current.gameObject;
             
             // Check if this object seems like a prefab root
-            // You can customize these conditions based on your prefab structure
             if (IsPrefabRoot(currentObj))
             {
                 candidateRoot = currentObj;
@@ -198,8 +197,6 @@ public class ScaleManager : MonoBehaviour
 
     private bool IsPrefabRoot(GameObject obj)
     {
-        // Customize this logic based on your prefab naming/tagging conventions
-        
         // Strategy 1: Check for specific tags that indicate prefab roots
         if (obj.CompareTag("Environment") || obj.CompareTag("Prop") || obj.CompareTag("Building"))
         {
@@ -207,21 +204,18 @@ public class ScaleManager : MonoBehaviour
         }
         
         // Strategy 2: Check if object has certain components that indicate it's a prefab root
-        // For example, if your prefabs have specific scripts at the root
-        if (obj.GetComponent<PrefabIdentifier>() != null) // You'd need to create this component
+        if (obj.GetComponent<PrefabIdentifier>() != null)
         {
             return true;
         }
         
         // Strategy 3: Check naming conventions
-        // If your prefabs follow a naming pattern like "Prefab_House", "Prefab_Tree", etc.
         if (obj.name.StartsWith("Prefab_") || obj.name.EndsWith("(Clone)"))
         {
             return true;
         }
         
         // Strategy 4: Check if object is at a reasonable hierarchy level
-        // If the object is too deep in the hierarchy, it's probably a child component
         Transform root = obj.transform.root;
         int hierarchyDepth = GetHierarchyDepth(obj.transform, root);
         
@@ -312,7 +306,7 @@ public class ScaleManager : MonoBehaviour
         // Select new object
         selectedObject = obj;
         originalScale = obj.transform.localScale;
-        originalScaleValue = Mathf.Max(originalScale.x, originalScale.y, originalScale.z); // Use the largest component
+        originalScaleValue = Mathf.Max(originalScale.x, originalScale.y, originalScale.z);
 
         // Update slider range and value
         if (scaleSlider != null)

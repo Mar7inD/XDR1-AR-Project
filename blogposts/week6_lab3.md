@@ -36,6 +36,6 @@ Another issue involved spawning environments and objects. I needed a script that
 
 ## 4. Reflection
 
-Although Lean Touch proved to be a powerful and efficient framework, building my own system from scratch was an invaluable learning experience. It gave me a deeper understanding of touch input handling, multi-touch logic, and gesture detection in Unity. More importantly, it strengthened my ability to debug complex behaviors on mobile devices and taught me how to adapt third-party solutions to fit the specific needs of my project.
+Although Lean Touch proved to be good and efficient framework, building my own system from scratch was an invaluable learning experience. It gave me a deeper understanding of touch input handling, multi-touch logic, and gesture detection in Unity. More importantly, it strengthened my ability to debug complex behaviors on mobile devices. Combining Lean Touch with my gathered knowledge helped me fit the provided solution to the specific needs of my project.
 
-In the end, even though I transitioned to a ready-made solution, the process of creating and refining my own gesture system made me a much stronger and more confident developer.
+In the end, even though I transitioned to a ready-made solution, the process of creating and refining my own gesture system helped me understand better mobile controls for AR applications.

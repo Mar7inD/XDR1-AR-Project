@@ -16,7 +16,7 @@ public class StayOnTop : MonoBehaviour
         }
         else if (Physics.Raycast(ray, out hit, 20f))
         {
-            // If layerMask didn't hit, try with Land tag
+            // Try with Land tag
             if (hit.collider.CompareTag("Land"))
             {
                 transform.position = new Vector3(transform.position.x, hit.point.y, transform.position.z);

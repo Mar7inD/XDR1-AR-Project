@@ -79,14 +79,12 @@ public class ARPlacementManager : MonoBehaviour
         if (arCamera == null)
             arCamera = Camera.main;
 
-        // Initialize panel toggle
         if (environmentButton != null)
             environmentPanelToggle = environmentButton.GetComponent<PanelToggle>();
 
         if (objectsButton != null)
             objectsPanelToggle = objectsButton.GetComponent<PanelToggle>();
 
-        // Get object manipulator if not assigned
         if (objectManipulator == null)
             objectManipulator = FindFirstObjectByType<ObjectManipulator>();
 
@@ -100,10 +98,9 @@ public class ARPlacementManager : MonoBehaviour
 
     void Update()
     {
-        // Only handle input if game has started
+
         if (!gameStarted) return;
 
-        // Only handle touch input if not dragging from UI
         if (!isDragging)
         {
             HandleInput();
@@ -156,8 +153,9 @@ public class ARPlacementManager : MonoBehaviour
             // Show environment button only initially
             if (environmentButton != null)
                 environmentButton.SetActive(true);
+
             // Objects button stays hidden until environment is placed
-            if (deleteButton != null) // Add this block
+            if (deleteButton != null)
                 deleteButton.SetActive(true);
         }
 
@@ -165,21 +163,6 @@ public class ARPlacementManager : MonoBehaviour
         ShowARPlanes();
 
         Debug.Log("Game started - AR placement is now active");
-    }
-
-    public void ShowControls()
-    {
-        // This method can be called by a "How to Play" button
-        // You could show a controls panel or expand the start panel
-        Debug.Log("Showing controls information");
-    }
-
-    public void RestartGame()
-    {
-        // Reset everything and go back to start panel
-        DeleteEverything();
-        ShowStartPanel();
-        Debug.Log("Game restarted");
     }
     #endregion
 
@@ -189,7 +172,7 @@ public class ARPlacementManager : MonoBehaviour
         // Only handle placement input if not manipulating objects and not dragging from UI
         if (objectManipulator != null && objectManipulator.HasSelectedObject())
         {
-            return; // Let ObjectManipulator handle input
+            return;
         }
 
         // Handle touch input on mobile
@@ -259,7 +242,7 @@ public class ARPlacementManager : MonoBehaviour
         }
 
         currentPrefab = prefab;
-        currentPlacementButton = sourceButton; // Remember which button initiated this placement
+        currentPlacementButton = sourceButton;
         
         // Match scale to current environment if applicable
         if (currentEnvironment != null && !IsEnvironmentPrefab(currentPrefab))
@@ -317,7 +300,7 @@ public class ARPlacementManager : MonoBehaviour
         CleanupPreview();
         previewInstance = Instantiate(currentPrefab);
         SetPreviewMode(previewInstance, true);
-        previewInstance.SetActive(false); // Start hidden until valid position found
+        previewInstance.SetActive(false);
     }
 
     void UpdatePreview(Vector2 screenPos)
@@ -464,8 +447,7 @@ public class ARPlacementManager : MonoBehaviour
     #region Object Management
     void SelectExistingObject(GameObject obj)
     {
-        // Handle object selection for deletion/modification
-        // Add glow effect, enable delete buttons, etc.
+
     }
     #endregion
 
@@ -534,7 +516,6 @@ public class ARPlacementManager : MonoBehaviour
 
                 renderer.materials = previewMaterials;
             }
-            // For real objects, materials are already correct from prefab
         }
 
         // Disable colliders for preview
@@ -647,7 +628,7 @@ public class ARPlacementManager : MonoBehaviour
             Transform[] children = currentEnvironment.GetComponentsInChildren<Transform>();
             foreach (Transform child in children)
             {
-                if (child != currentEnvironment.transform) // Don't remove the environment itself
+                if (child != currentEnvironment.transform)
                 {
                     spawnedObjects.Remove(child.gameObject);
                 }
