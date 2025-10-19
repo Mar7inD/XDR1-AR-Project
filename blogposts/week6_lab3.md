@@ -39,3 +39,9 @@ Another issue involved spawning environments and objects. I needed a script that
 Although Lean Touch proved to be good and efficient framework, building my own system from scratch was an invaluable learning experience. It gave me a deeper understanding of touch input handling, multi-touch logic, and gesture detection in Unity. More importantly, it strengthened my ability to debug complex behaviors on mobile devices. Combining Lean Touch with my gathered knowledge helped me fit the provided solution to the specific needs of my project.
 
 In the end, even though I transitioned to a ready-made solution, the process of creating and refining my own gesture system helped me understand better mobile controls for AR applications.
+
+## 5. Further improvements
+
+As of now, the AR app represents an MVP — the core interactions are functional, and users can already engage with it effectively. Although it has undergone many improvements over the past weeks, there is still room for refinement. The main goal of this project was to create an app where users can spawn environments and place additional objects to build a relaxing atmosphere. The controls are responsive, the workflow is intuitive, and elements can be arranged according to the user’s preferences.
+
+Naturally, a few bugs remain that could be addressed in future iterations — for instance, improving ground detection when moving objects and refining the script that adjusts object height relative to the terrain. The underlying logic and structure are already in place; only minor adjustments are needed to handle edge cases more reliably.
