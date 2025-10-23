@@ -42,6 +42,8 @@ In the end, even though I transitioned to a ready-made solution, the process of 
 
 ## 5. Further improvements
 
-As of now, the AR app represents an MVP — the core interactions are functional, and users can already engage with it effectively. Although it has undergone many improvements over the past weeks, there is still room for refinement. The main goal of this project was to create an app where users can spawn environments and place additional objects to build a relaxing atmosphere. The controls are responsive, the workflow is intuitive, and elements can be arranged according to the user’s preferences.
+As of now, the AR app represents an MVP — the core interactions are functional, and users can already engage with it effectively. Although it has undergone many improvements over the past weeks, there is still room for refinement. 
 
-Naturally, a few bugs remain that could be addressed in future iterations — for instance, improving ground detection when moving objects and refining the script that adjusts object height relative to the terrain. The underlying logic and structure are already in place; only minor adjustments are needed to handle edge cases more reliably.
+The main goal of this project was to create an app where users can spawn environments, place additional objects and be able to scale whole environment or just selected objects in order to build a relaxing atmosphere. The controls are responsive, the workflow is intuitive, and elements can be arranged according to the user’s preferences.
+
+Naturally, a few bugs remain that could be addressed in future iterations — for instance, improving ground detection when moving objects and refining the script that adjusts object height relative to the terrain. The underlying logic and structure are already in place and only minor adjustments are needed to handle edge cases more reliably.

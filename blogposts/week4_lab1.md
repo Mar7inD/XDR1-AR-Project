@@ -8,7 +8,7 @@ _Written by: Martin Donchev_
 
 ## Introduction
 
-HeavenAR is designed to let users escape into a calming environment using only their phone and headphones. In our busy daily lives, finding time to relax can be difficult, which often leads to stress. HeavenAR aims to offer a quick mental getaway — an app where you can project a peaceful scene onto a nearby surface like a table or the floor. By immersing into the soothing environment you have created with few clicks, you can disconnect from external stress and recharge.
+HeavenAR is an app with purpose to let users escape into a calming environment using only their phone and headphones. In our busy daily lives, finding time to relax can be difficult, which often leads to stress. HeavenAR aims to offer a quick mental getaway — an app where you can project a peaceful scene onto a nearby surface like a table or floor. The main goal of the app is to be able with a few clicks to immerse into a soothing environment where you can disconnect and relax for a few moments.
 
 ## Progress
 
@@ -20,15 +20,15 @@ My first thought was to create a sorting app where AR could help users place tra
 
 From there, I considered developing an AR project using 3D models to enhance understanding, but I found that many such implementations already existed online, and even our teacher showed us student examples. This motivated me to go with something more unique, so I set aside my ideas related to waste sorting, biology, the solar system.
 
-While brainstorming around the solar system, I started thinking about portals to different planets and began to wonder: where should a portal to Earth lead? At first, I pictured a bustling city like New York, but then I thought about my own preference—I would rather be in a calm, relaxing place.
+While brainstorming around the solar system idea and more specifically the portals I was planing to include, I started thinking about where should a portal to Earth lead? At first, I pictured a city like New York, but then I thought that if it was me I would like to be in a more calm place. Somewhere I can be more relaxed.
 
 That shift in perspective inspired my final idea: creating an AR experience that helps people immerse themselves in their favorite peaceful environment. A beach where you can hear waves splashing, a forest filled with birds and deer, or a campfire crackling in the night. A place to focus, recharge, and calm yourself.
 
 ### Role of AR Technologies
 
-Augmented Reality plays a central role in bringing the concept of HeavenAR to life. Unlike traditional relaxation apps that rely on static images or videos, AR allows users to project immersive 3D environments directly into their real-world space. This creates a stronger sense of presence and connection, as the calming scene becomes part of the user’s surroundings rather than something viewed through a flat screen.
+Augmented Reality is an important part in achieving the concept of HavenAR. Unlike traditional relaxation apps which rely on images or videos and some audio, AR allows users to project immersive 3D environments directly into their real-world space. For my app, using AR will bring a stronger sense of presence and connection, as the calming scene becomes part of the user’s surroundings rather than just viewing something on a flat screen.
 
-By leveraging surface detection, real-time lighting, and spatial audio, AR technologies make the experience feel more natural and adaptive. For instance, the environment can be placed on a nearby table or the floor, reacting to the physical layout of the room. This interaction transforms an ordinary space into a personalized sanctuary — whether it’s a miniature beach at your desk or a small forest beside your bed.
+By leveraging surface detection, real-time lighting, and spatial audio, AR technologies will make the experience feel more natural and adaptive. For instance, in HavenAR the user will be able to place the environment on a nearby table or the floor, reacting to the physical layout of the room. Through these interactions the user can personalize an ordinary space — whether it’s a miniature beach at your desk or a small forest beside your bed.
 
 In short, HeavenAR benefits from AR by enhancing immersion, engagement, and personalization. The technology bridges the gap between the digital and physical worlds, allowing users to take short yet meaningful mental breaks wherever they are, without needing specialized equipment.
 
