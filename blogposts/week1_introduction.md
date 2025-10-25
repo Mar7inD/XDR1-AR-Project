@@ -4,7 +4,7 @@
 
 [Back - EscapeRoomVR](https://github.com/Mar7inD/XRD1-VR-Project)
 
-_Introduction_
+_Week 1 (Introduction)_
 
 _Written by: Martin Donchev_
 

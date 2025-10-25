@@ -4,6 +4,6 @@
 
 [Back - EscapeRoomVR](https://github.com/Mar7inD/XRD1-VR-Project)
 
-_Reflection_
+_Reflections_
 
 _Written by: Martin Donchev_

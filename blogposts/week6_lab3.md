@@ -4,7 +4,7 @@
 
 [Back - EscapeRoomVR](https://github.com/Mar7inD/XRD1-VR-Project)
 
-_Lab Week: 3_
+_Week 6 (Lab 3)_
 
 _Written by: Martin Donchev_
 
