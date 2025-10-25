@@ -1,7 +1,8 @@
 # HavenAR - Research, decisions and intial work
 
-[Back - HavenAR](https://github.com/Mar7inD/XDR1-AR-Project)
-[Back - EscapeRoomVR](https://github.com/Mar7inD/XDR1-VR-Project)
+[Back - HavenAR](https://github.com/Mar7inD/XRD1-AR-Project)
+
+[Back - EscapeRoomVR](https://github.com/Mar7inD/XRD1-VR-Project)
 
 _Lab Week: 1_
 

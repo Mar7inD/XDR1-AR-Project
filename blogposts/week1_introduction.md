@@ -1,14 +1,15 @@
-# Reflection on XDR1 Course
+# Reflection on XRD1 Course
 
-[Back - HavenAR](https://github.com/Mar7inD/XDR1-AR-Project)
-[Back - EscapeRoomVR](https://github.com/Mar7inD/XDR1-VR-Project)
+[Back - HavenAR](https://github.com/Mar7inD/XRD1-AR-Project)
+
+[Back - EscapeRoomVR](https://github.com/Mar7inD/XRD1-VR-Project)
 
 _Introduction_
 
 _Written by: Martin Donchev_
 
 ## Course Introduction
-Our first lecture provided a comprehensive introduction to the XDR1 course. We covered important for us things like exam requirements and learning objectives as well as some very interesting topics like history of AR (Augmented Reality) and VR (Virtual Reality), benefits and capabilities of these technologies and some example projects from former students of the course as well as real life examples.
+Our first lecture provided a comprehensive introduction to the XRD1 course. We covered important for us things like exam requirements and learning objectives as well as some very interesting topics like history of AR (Augmented Reality) and VR (Virtual Reality), benefits and capabilities of these technologies and some example projects from former students of the course as well as real life examples.
 We were introduced to the XR lab where all sort of needed equipment can be found.
 
 The aim of this blog post is to further reflect on the **what** and **why** questions discussed in class. Exploring the ideas and motivation in XR technologies is the main driver.
